@@ -11,8 +11,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
-// Service role client for admin operations
-export const supabaseAdmin = createClient(
+// Service role client for admin operations (server-side only)
+export const supabaseAdmin = typeof window === 'undefined' ? createClient(
   supabaseUrl,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
   {
@@ -21,7 +21,7 @@ export const supabaseAdmin = createClient(
       persistSession: false
     }
   }
-);
+) : null;
 
 // Database types
 export interface User {

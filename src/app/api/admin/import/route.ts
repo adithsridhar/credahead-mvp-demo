@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 interface LessonRow {
   lesson_id: string;
@@ -76,6 +76,18 @@ function transformQuestions(rows: any[]): QuestionRow[] {
 
 export async function POST(request: NextRequest) {
   try {
+    // Create admin client in server environment
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const type = formData.get('type') as 'lessons' | 'questions';
