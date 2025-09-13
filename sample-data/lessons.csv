@@ -1,0 +1,11 @@
+lesson_id,title,description,level,estimated_duration,prerequisites
+lesson_001,Introduction to Budgeting,Learn the basics of creating and managing a personal budget,1,15,
+lesson_002,Understanding Credit Scores,Discover how credit scores work and how to improve them,2,20,lesson_001
+lesson_003,Emergency Fund Basics,Learn why emergency funds are important and how to build one,1,18,
+lesson_004,Investment Fundamentals,Introduction to different types of investments,3,25,lesson_001;lesson_002
+lesson_005,Debt Management Strategies,Learn effective strategies for managing and reducing debt,2,22,lesson_001
+lesson_006,Banking Basics,Understanding different types of bank accounts and services,1,12,
+lesson_007,Credit Cards and Responsible Use,How to use credit cards wisely and avoid debt,2,18,lesson_002
+lesson_008,Retirement Planning 101,Introduction to retirement savings and planning,3,30,lesson_004
+lesson_009,Insurance Fundamentals,Understanding different types of insurance and their importance,2,25,lesson_003
+lesson_010,Tax Basics,Introduction to personal taxes and tax planning,3,28,lesson_001;lesson_004

@@ -1,0 +1,154 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Container, Paper, TextField, Button, Typography, Box, Alert } from '@mui/material';
+import { useAuth } from '@/contexts/AuthContext';
+
+export default function SignInPage() {
+  const router = useRouter();
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      await signIn(email, password);
+      router.push('/');
+    } catch (error: any) {
+      setError(error.message || 'Failed to sign in');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Container maxWidth="sm" sx={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center',
+      py: 4
+    }}>
+      <Paper sx={{ 
+        width: '100%', 
+        p: 4,
+        backgroundColor: '#4a4a4a',
+        borderRadius: 2,
+      }}>
+        <Typography variant="h4" component="h1" gutterBottom sx={{ 
+          textAlign: 'center',
+          color: '#FF6B35',
+          fontWeight: 'bold',
+          mb: 3
+        }}>
+          Sign In
+        </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#666',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#FF6B35',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#FF6B35',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#E0E0E0',
+                '&.Mui-focused': {
+                  color: '#FF6B35',
+                },
+              },
+            }}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#666',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#FF6B35',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#FF6B35',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#E0E0E0',
+                '&.Mui-focused': {
+                  color: '#FF6B35',
+                },
+              },
+            }}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={loading}
+            sx={{ 
+              mt: 3, 
+              mb: 2,
+              backgroundColor: '#FF6B35',
+              '&:hover': {
+                backgroundColor: '#e55a2b',
+              },
+              py: 1.5,
+            }}
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
+          </Button>
+          <Box sx={{ textAlign: 'center' }}>
+            <Link href="/auth/signup" style={{ color: '#FF6B35', textDecoration: 'none' }}>
+              Don't have an account? Sign Up
+            </Link>
+          </Box>
+        </Box>
+      </Paper>
+    </Container>
+  );
+}
