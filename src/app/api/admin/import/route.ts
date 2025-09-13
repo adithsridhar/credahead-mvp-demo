@@ -92,18 +92,18 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
     const type = formData.get('type') as 'lessons' | 'questions';
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-    }
+         if (!file) {
+           return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+         }
 
-    if (!type || (type !== 'lessons' && type !== 'questions')) {
-      return NextResponse.json({ error: 'Invalid type. Must be "lessons" or "questions"' }, { status: 400 });
-    }
+         if (!type || (type !== 'lessons' && type !== 'questions')) {
+           return NextResponse.json({ error: 'Invalid type. Must be "lessons" or "questions"' }, { status: 400 });
+         }
 
-    const csvText = await file.text();
-    const parsed = parseCSV(csvText);
+         const csvText = await file.text();
+         const parsed = parseCSV(csvText);
 
-    if (parsed.length === 0) {
+         if (parsed.length === 0) {
       return NextResponse.json({ error: 'No data found in CSV' }, { status: 400 });
     }
 
