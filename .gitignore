@@ -1,0 +1,17 @@
+ # Dependencies
+  node_modules/
+  /.pnp
+  .pnp.js
+
+  # Next.js
+  /.next/
+  /out/
+
+  # Environment files
+  .env*.local
+
+  # Logs
+  *.log
+
+  # OS files
+  .DS_Store
