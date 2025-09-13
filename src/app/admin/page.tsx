@@ -56,23 +56,36 @@ export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
-      const [lessonsRes, questionsRes, usersRes, sessionsRes] = await Promise.all([
-        supabase.from('lessons').select('*', { count: 'exact' }),
-        supabase.from('questions').select('*', { count: 'exact' }),
-        supabase.from('users').select('*', { count: 'exact' }),
-        supabase.from('quiz_sessions').select('*', { count: 'exact' }),
-      ]);
+      try {
+        const [lessonsRes, questionsRes, usersRes, sessionsRes] = await Promise.all([
+          supabase.from('lessons').select('*', { count: 'exact' }).then(res => res || { count: 0, data: [] }),
+          supabase.from('questions').select('*', { count: 'exact' }).then(res => res || { count: 0, data: [] }),
+          supabase.from('users').select('*', { count: 'exact' }).then(res => res || { count: 0, data: [] }),
+          supabase.from('quiz_sessions').select('*', { count: 'exact' }).then(res => res || { count: 0, data: [] }),
+        ]);
 
-      return {
-        totalLessons: lessonsRes.count || 0,
-        totalQuestions: questionsRes.count || 0,
-        totalUsers: usersRes.count || 0,
-        totalSessions: sessionsRes.count || 0,
-        lessons: lessonsRes.data || [],
-        recentUsers: usersRes.data?.slice(0, 5) || [],
-      };
+        return {
+          totalLessons: lessonsRes.count || 0,
+          totalQuestions: questionsRes.count || 0,
+          totalUsers: usersRes.count || 0,
+          totalSessions: sessionsRes.count || 0,
+          lessons: lessonsRes.data || [],
+          recentUsers: usersRes.data?.slice(0, 5) || [],
+        };
+      } catch (error) {
+        console.error('Admin stats error:', error);
+        return {
+          totalLessons: 0,
+          totalQuestions: 0,
+          totalUsers: 0,
+          totalSessions: 0,
+          lessons: [],
+          recentUsers: [],
+        };
+      }
     },
     refetchInterval: 30000, // Refetch every 30 seconds
+    retry: 1,
   });
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
