@@ -147,6 +147,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No data found in CSV' }, { status: 400 });
     }
 
+    // Check batch size limits
+    const maxBatchSize = type === 'lessons' ? 100 : 500;
+    if (parsed.length > maxBatchSize) {
+      return NextResponse.json({ 
+        error: `Batch size exceeded. Your CSV has ${parsed.length} rows, but the maximum allowed is ${maxBatchSize} for ${type}. Please split your CSV into smaller files and upload them separately.`,
+        maxAllowed: maxBatchSize,
+        received: parsed.length
+      }, { status: 400 });
+    }
+
     let transformedData;
     if (type === 'lessons') {
       transformedData = transformLessons(parsed);
