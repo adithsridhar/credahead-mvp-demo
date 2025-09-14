@@ -28,16 +28,42 @@ function parseCSV(csvText: string): any[] {
   const lines = csvText.trim().split('\n');
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
   const rows = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-    const row: any = {};
+    const line = lines[i];
+    const values: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    let quoteCount = 0;
     
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      
+      if (char === '"') {
+        quoteCount++;
+        if (quoteCount % 2 === 1) {
+          inQuotes = true;
+        } else {
+          inQuotes = false;
+        }
+        current += char;
+      } else if (char === ',' && !inQuotes) {
+        values.push(current.trim());
+        current = '';
+        quoteCount = 0;
+      } else {
+        current += char;
+      }
+    }
+    values.push(current.trim());
+    
+    const row: any = {};
     headers.forEach((header, index) => {
       if (values[index] !== undefined) {
-        row[header] = values[index];
+        let value = values[index].replace(/^"|"$/g, ''); // Remove outer quotes only
+        row[header] = value;
       }
     });
     
@@ -62,16 +88,30 @@ function transformLessons(rows: any[]): LessonRow[] {
 }
 
 function transformQuestions(rows: any[]): QuestionRow[] {
-  return rows.map(row => ({
-    question_id: row.question_id,
-    lesson_id: row.lesson_id || null,
-    text: row.text,
-    options: JSON.parse(row.options || '[]'),
-    correct_answer: parseInt(row.correct_answer) || 0,
-    difficulty: parseInt(row.difficulty) || 5,
-    explanation: row.explanation || null,
-    tags: row.tags ? row.tags.split(';') : [],
-  }));
+  return rows.map(row => {
+    let options = [];
+    try {
+      // Clean up the options string and parse as JSON
+      let optionsStr = row.options || '[]';
+      // Remove any extra quotes and clean up
+      optionsStr = optionsStr.replace(/^"+|"+$/g, '');
+      options = JSON.parse(optionsStr);
+    } catch (error) {
+      console.error('Error parsing options for question:', row.question_id, error);
+      options = ['Option 1', 'Option 2', 'Option 3', 'Option 4']; // fallback
+    }
+    
+    return {
+      question_id: row.question_id,
+      lesson_id: row.lesson_id || null,
+      text: row.text,
+      options: options,
+      correct_answer: parseInt(row.correct_answer) || 0,
+      difficulty: parseInt(row.difficulty) || 5,
+      explanation: row.explanation || null,
+      tags: row.tags ? row.tags.split(';') : [],
+    };
+  });
 }
 
 export async function POST(request: NextRequest) {
