@@ -18,7 +18,7 @@ export async function selectNextQuestion(
   
   // Get cached history to avoid repeating questions
   const historicalIds = await userHistoryCache.getQuestionHistory(userId, context);
-  const excludeIds = new Set([...usedQuestionIds, ...historicalIds]);
+  const excludeIds = new Set([...Array.from(usedQuestionIds), ...Array.from(historicalIds)]);
   
   // Determine lesson level range for assessment
   let levelRange = { min: 1, max: 10 };
@@ -34,7 +34,7 @@ export async function selectNextQuestion(
     
     let query = supabase
       .from('questions')
-      .select('*, lessons!inner(level)')
+      .select('*, lessons(level)')
       .gte('difficulty', minDiff)
       .lte('difficulty', maxDiff);
     
@@ -73,7 +73,7 @@ export async function selectNextQuestion(
   // If no questions found, try without difficulty constraints
   let fallbackQuery = supabase
     .from('questions')
-    .select('*, lessons!inner(level)');
+    .select('*, lessons(level)');
   
   if (context === 'assessment') {
     fallbackQuery = fallbackQuery
@@ -93,6 +93,20 @@ export async function selectNextQuestion(
     return fallbackQuestions[Math.floor(Math.random() * fallbackQuestions.length)] as Question;
   }
   
+  // Last resort: try to get ANY question regardless of lesson
+  console.warn('No questions found with lesson level filters, trying without lesson constraints');
+  const { data: anyQuestions } = await supabase
+    .from('questions')
+    .select('*')
+    .gte('difficulty', 1)
+    .lte('difficulty', 10)
+    .limit(10);
+  
+  if (anyQuestions && anyQuestions.length > 0) {
+    return anyQuestions[Math.floor(Math.random() * anyQuestions.length)] as Question;
+  }
+  
+  console.error('No questions found in database at all');
   return null;
 }
 

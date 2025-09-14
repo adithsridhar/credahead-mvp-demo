@@ -80,7 +80,7 @@ function transformLessons(rows: any[]): LessonRow[] {
     description: row.description || null,
     learning_outcomes: row.learning_outcomes ? JSON.parse(row.learning_outcomes) : null,
     level: parseInt(row.level) || 1,
-    estimated_duration: row.estimated_duration ? parseInt(row.estimated_duration) : null,
+    estimated_duration: row.estimated_duration ? parseInt(row.estimated_duration) : undefined,
     prerequisites: row.prerequisites ? row.prerequisites.split(';') : [],
     completion_rate: row.completion_rate ? parseFloat(row.completion_rate) : 0,
     avg_quiz_score: row.avg_quiz_score ? parseFloat(row.avg_quiz_score) : 0,
@@ -93,11 +93,13 @@ function transformQuestions(rows: any[]): QuestionRow[] {
     try {
       // Clean up the options string and parse as JSON
       let optionsStr = row.options || '[]';
-      // Remove any extra quotes and clean up
-      optionsStr = optionsStr.replace(/^"+|"+$/g, '');
+      // Handle double-quoted CSV format: "[""Option1"", ""Option2""]"
+      optionsStr = optionsStr.replace(/^"/, '').replace(/"$/, ''); // Remove outer quotes
+      optionsStr = optionsStr.replace(/""/g, '"'); // Convert "" to "
       options = JSON.parse(optionsStr);
     } catch (error) {
       console.error('Error parsing options for question:', row.question_id, error);
+      console.error('Original options string:', row.options);
       options = ['Option 1', 'Option 2', 'Option 3', 'Option 4']; // fallback
     }
     
@@ -174,7 +176,7 @@ export async function POST(request: NextRequest) {
       const { error, count } = await supabaseAdmin
         .from(type)
         .insert(batch)
-        .select('*', { count: 'exact' });
+        .select('*');
 
       if (error) {
         console.error(`Error inserting batch ${i}-${i + batch.length}:`, error);

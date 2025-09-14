@@ -104,7 +104,7 @@ export default function AssessmentPage() {
 
       if (question) {
         setCurrentQuestion(question);
-        setUsedQuestionIds(prev => new Set([...prev, question.question_id]));
+        setUsedQuestionIds(prev => new Set([...Array.from(prev), question.question_id]));
       } else {
         console.error('No questions available');
         // Complete assessment if no questions available

@@ -61,7 +61,7 @@ export async function generatePathway(userId: string, literacyLevel: number): Pr
       if (isLevelLocked) {
         lockReason = `Complete all Level ${literacyLevel} lessons first`;
       } else if (hasUnmetPrerequisites) {
-        const unmetPrereqs = (lesson.prerequisites || []).filter(prereq => 
+        const unmetPrereqs = (lesson.prerequisites || []).filter((prereq: string) => 
           !completedLessons.has(prereq)
         );
         lockReason = `Prerequisites required: ${unmetPrereqs.join(', ')}`;
