@@ -8,14 +8,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 import { userHistoryCache } from '@/lib/cache/userHistoryCache';
 import { selectNextQuestion, recordQuestionAnswer } from '@/lib/questionSelection';
-import { calculateQuizScore, adjustDifficulty, type QuizResponse } from '@/lib/utils/scoring';
+import { calculateLiteracyLevel, adjustDifficulty, type QuizResponse, type AssessmentResponse } from '@/lib/utils/scoring';
 import { supabase, type Question, type QuizSession, type Lesson } from '@/lib/supabase';
 import { updateUserLiteracyLevel } from '@/lib/pathwayGeneration';
 import QuestionCard from '@/components/QuestionCard';
 import FeedbackPopup from '@/components/FeedbackPopup';
 
 const TOTAL_QUESTIONS = 10;
-const PASSING_SCORE = 8;
 
 export default function LessonQuizPage() {
   const params = useParams();
@@ -26,9 +25,12 @@ export default function LessonQuizPage() {
   const [session, setSession] = useState<QuizSession | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [currentDifficulty, setCurrentDifficulty] = useState(5);
+  const [minDifficulty, setMinDifficulty] = useState(1);
+  const [maxDifficulty, setMaxDifficulty] = useState(10);
+  const [completionCriteriaMet, setCompletionCriteriaMet] = useState(false);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [usedQuestionIds, setUsedQuestionIds] = useState<Set<string>>(new Set());
-  const [responses, setResponses] = useState<QuizResponse[]>([]);
+  const [responses, setResponses] = useState<AssessmentResponse[]>([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackData, setFeedbackData] = useState<{
     isCorrect: boolean;
@@ -53,6 +55,32 @@ export default function LessonQuizPage() {
     },
     enabled: !!lessonId,
   });
+
+  // Get lesson difficulty range
+  const getLessonDifficultyRange = useCallback(async () => {
+    if (!lessonId) return { min: 1, max: 10 };
+
+    try {
+      const { data, error } = await supabase
+        .from('questions')
+        .select('difficulty')
+        .eq('lesson_id', lessonId);
+
+      if (error || !data || data.length === 0) {
+        console.warn('No questions found for lesson, using default range');
+        return { min: 1, max: 10 };
+      }
+
+      const difficulties = data.map(q => q.difficulty).filter(d => d != null);
+      const min = Math.min(...difficulties);
+      const max = Math.max(...difficulties);
+      
+      return { min, max };
+    } catch (error) {
+      console.error('Error getting lesson difficulty range:', error);
+      return { min: 1, max: 10 };
+    }
+  }, [lessonId]);
 
   // 5-minute inactivity timeout
   useInactivityTimeout(5 * 60 * 1000, async () => {
@@ -89,6 +117,13 @@ export default function LessonQuizPage() {
         userHistoryCache.invalidateContext(user.id, lessonId);
       }
 
+      // Get lesson difficulty range first
+      const { min, max } = await getLessonDifficultyRange();
+      setMinDifficulty(min);
+      setMaxDifficulty(max);
+      setCurrentDifficulty(min); // Start at minimum difficulty
+      setCompletionCriteriaMet(false);
+
       // Create new session
       const { data: newSession, error } = await supabase
         .from('quiz_sessions')
@@ -96,7 +131,7 @@ export default function LessonQuizPage() {
           user_id: user.id,
           lesson_id: lessonId,
           session_type: 'lesson',
-          current_difficulty: 5,
+          current_difficulty: min,
           questions_answered: 0,
           correct_answers: 0,
           status: 'active'
@@ -113,7 +148,7 @@ export default function LessonQuizPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, lessonId]);
+  }, [user, lessonId, getLessonDifficultyRange]);
 
   const loadNextQuestion = useCallback(async () => {
     if (!user || !lessonId) return;
@@ -151,13 +186,23 @@ export default function LessonQuizPage() {
       const isCorrect = selectedOption === question.correct_answer;
       
       // Store response
-      const response: QuizResponse = {
+      const response: AssessmentResponse = {
         questionId: question.question_id,
         isCorrect,
         difficulty: question.difficulty,
       };
       
       setResponses(prev => [...prev, response]);
+
+      // Update difficulty with clamping to lesson's min/max range
+      const newDifficulty = adjustDifficulty(currentDifficulty, isCorrect);
+      const clampedDifficulty = Math.max(minDifficulty, Math.min(maxDifficulty, newDifficulty));
+      setCurrentDifficulty(clampedDifficulty);
+
+      // Check if completion criteria met (answered max difficulty question correctly)
+      if (isCorrect && question.difficulty === maxDifficulty) {
+        setCompletionCriteriaMet(true);
+      }
 
       // Record in database
       await recordQuestionAnswer(
@@ -168,9 +213,7 @@ export default function LessonQuizPage() {
         question.difficulty
       );
 
-      // Update difficulty
-      const newDifficulty = adjustDifficulty(currentDifficulty, isCorrect);
-      setCurrentDifficulty(newDifficulty);
+      // Difficulty already updated above with clamping
 
       // Show feedback popup
       setFeedbackData({
@@ -180,10 +223,10 @@ export default function LessonQuizPage() {
       setShowFeedback(true);
       setContinueEnabled(false);
 
-      // Enable continue button after 10 seconds
+      // Enable continue button after 5 seconds
       setTimeout(() => {
         setContinueEnabled(true);
-      }, 10000);
+      }, 5000);
 
       // Update session
       const correctAnswers = responses.filter(r => r.isCorrect).length + (isCorrect ? 1 : 0);
@@ -193,7 +236,7 @@ export default function LessonQuizPage() {
           last_activity_at: new Date().toISOString(),
           questions_answered: questionsAnswered + 1,
           correct_answers: correctAnswers,
-          current_difficulty: newDifficulty,
+          current_difficulty: clampedDifficulty,
         })
         .eq('id', session.id);
 
@@ -222,8 +265,8 @@ export default function LessonQuizPage() {
     try {
       setIsCompleting(true);
       
-      const finalScore = calculateQuizScore(responses);
-      const passed = finalScore >= PASSING_SCORE;
+      const finalLiteracyLevel = calculateLiteracyLevel(responses);
+      const passed = completionCriteriaMet; // Based on answering max difficulty correctly
 
       // Mark lesson as completed if passed
       if (passed) {
@@ -233,7 +276,7 @@ export default function LessonQuizPage() {
             user_id: user.id,
             lesson_id: lessonId,
             completed: true,
-            score: finalScore,
+            score: finalLiteracyLevel,
             completed_at: new Date().toISOString(),
             attempts: 1, // This should be incremented properly in a real app
           });
@@ -290,45 +333,63 @@ export default function LessonQuizPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header */}
-      {lesson && (
-        <Box sx={{ mb: 4, textAlign: 'center' }}>
-          <Typography variant="h4" gutterBottom sx={{ color: '#FF6B35', fontWeight: 'bold' }}>
-            {lesson.title}
-          </Typography>
-          {lesson.description && (
-            <Typography variant="h6" sx={{ color: '#E0E0E0', mb: 2 }}>
-              {lesson.description}
-            </Typography>
-          )}
-        </Box>
-      )}
-
-      {/* Progress Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" align="center" gutterBottom sx={{ color: '#E0E0E0' }}>
-          Question {questionsAnswered + 1} of {TOTAL_QUESTIONS}
+    <Container maxWidth="lg" sx={{ py: 4, minHeight: '100vh', position: 'relative' }}>
+      {/* Header Row */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 4,
+        px: 2
+      }}>
+        {/* Level - Left */}
+        <Typography variant="h6" sx={{ color: '#FF6B35', fontWeight: 'bold' }}>
+          Level {lesson?.level || '-'}
         </Typography>
-        <LinearProgress
-          variant="determinate"
-          value={(questionsAnswered / TOTAL_QUESTIONS) * 100}
-          sx={{
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            '& .MuiLinearProgress-bar': {
-              backgroundColor: '#FF6B35',
-            },
-          }}
-        />
-        <Box sx={{ mt: 2, display: 'flex', justify: 'space-between', alignItems: 'center' }}>
-          <Typography variant="body2" sx={{ color: '#B0B0B0' }}>
-            Current Difficulty: {currentDifficulty.toFixed(1)}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#B0B0B0' }}>
-            Progress: {Math.round((questionsAnswered / TOTAL_QUESTIONS) * 100)}%
-          </Typography>
+        
+        {/* Lesson Title - Center */}
+        <Typography variant="h4" sx={{ 
+          color: '#FF6B35', 
+          fontWeight: 'bold',
+          textAlign: 'center',
+          flexGrow: 1,
+          mx: 4
+        }}>
+          {lesson?.title?.toUpperCase() || 'LESSON'}
+        </Typography>
+        
+        {/* Question Counter - Right */}
+        <Typography variant="h6" sx={{ color: '#E0E0E0', fontWeight: 'bold' }}>
+          Q {questionsAnswered + 1}/{TOTAL_QUESTIONS}
+        </Typography>
+      </Box>
+
+      {/* Progress Bar - Centered */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center',
+        mb: 4
+      }}>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          {Array.from({ length: TOTAL_QUESTIONS }, (_, index) => {
+            let color = 'rgba(255, 255, 255, 0.2)'; // Empty/unanswered
+            if (index < responses.length) {
+              color = responses[index].isCorrect ? '#4CAF50' : '#F44336'; // Green for correct, red for incorrect
+            }
+            
+            return (
+              <Box
+                key={index}
+                sx={{
+                  width: 24,
+                  height: 24,
+                  backgroundColor: color,
+                  borderRadius: 1,
+                  border: '2px solid rgba(255, 255, 255, 0.3)'
+                }}
+              />
+            );
+          })}
         </Box>
       </Box>
 

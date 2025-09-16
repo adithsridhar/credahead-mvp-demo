@@ -19,7 +19,7 @@ export default function FeedbackPopup({
   onContinue,
   open
 }: FeedbackPopupProps) {
-  const [countdown, setCountdown] = useState(10);
+  const [countdown, setCountdown] = useState(5);
   
   useEffect(() => {
     if (open && !continueEnabled && countdown > 0) {
@@ -30,7 +30,7 @@ export default function FeedbackPopup({
 
   useEffect(() => {
     if (open) {
-      setCountdown(10);
+      setCountdown(5);
     }
   }, [open]);
   
