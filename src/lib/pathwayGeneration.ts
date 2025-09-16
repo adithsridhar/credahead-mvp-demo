@@ -64,10 +64,12 @@ export async function generatePathway(userId: string, userLiteracyLevel: number)
         completedLessons.has(l.lesson_id)
       );
       
+      // Only advance to next level if current level is fully completed
       if (allCurrentLevelCompleted) {
         // Find the next level that has lessons
-        const nextLevel = Math.min(...lessons.filter(l => l.level > currentAccessibleLevel).map(l => l.level));
-        if (nextLevel !== Infinity) {
+        const nextLevels = lessons.filter(l => l.level > currentAccessibleLevel).map(l => l.level);
+        if (nextLevels.length > 0) {
+          const nextLevel = Math.min(...nextLevels);
           currentAccessibleLevel = nextLevel;
         }
       }

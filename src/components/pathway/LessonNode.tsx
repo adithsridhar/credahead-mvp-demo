@@ -89,10 +89,8 @@ export default function LessonNode({
       position: 'absolute' as const,
       top: '50%',
       transform: 'translateY(-50%)',
-      whiteSpace: 'nowrap' as const,
-      maxWidth: { xs: '120px', md: '180px' },
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
+      maxWidth: { xs: '140px', md: '200px' },
+      wordWrap: 'break-word' as const,
     };
 
     if (position === 'left') {
@@ -152,26 +150,19 @@ export default function LessonNode({
       {/* Lesson Label */}
       <Box sx={getLabelStyles()}>
         <Typography
-          variant="h6"
           sx={{
             color: state === 'locked' ? '#6B7280' : '#E0E0E0',
-            fontSize: { xs: '0.9rem', md: '1.1rem' },
+            fontSize: { xs: '0.75rem', md: '0.9rem' },
             fontWeight: 'bold',
-            mb: 0.5,
             opacity: state === 'locked' ? 0.7 : 1,
+            lineHeight: 1.2,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
           }}
         >
           {lesson.title}
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{
-            color: state === 'locked' ? '#6B7280' : '#B0B0B0',
-            fontSize: { xs: '0.75rem', md: '0.8rem' },
-            opacity: state === 'locked' ? 0.7 : 0.8,
-          }}
-        >
-          (Level {lesson.level})
         </Typography>
       </Box>
     </Box>
