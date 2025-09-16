@@ -2,35 +2,53 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Container, Box, Typography, LinearProgress, CircularProgress, Button } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import { Container, Box, Typography, CircularProgress, Button, Card, CardContent, LinearProgress } from '@mui/material';
 import { useAuth } from '@/contexts/AuthContext';
-import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
-import { userHistoryCache } from '@/lib/cache/userHistoryCache';
-import { selectNextQuestion, recordQuestionAnswer } from '@/lib/questionSelection';
-import { calculateLiteracyLevel, adjustDifficulty, type QuizResponse, type AssessmentResponse } from '@/lib/utils/scoring';
-import { supabase, type Question, type QuizSession, type Lesson } from '@/lib/supabase';
-import { updateUserLiteracyLevel } from '@/lib/pathwayGeneration';
+import { supabase, type Question, type Lesson } from '@/lib/supabase';
 import QuestionCard from '@/components/QuestionCard';
 import FeedbackPopup from '@/components/FeedbackPopup';
 
 const TOTAL_QUESTIONS = 10;
 
+interface QuestionResult {
+  questionId: string;
+  difficulty: number;
+  correct: boolean;
+  userAnswer: number;
+  correctAnswer: number;
+}
+
+interface QuizResults {
+  totalCorrect: number;
+  totalQuestions: number;
+  percentage: number;
+  difficultyBreakdown: {
+    difficulty: number;
+    correct: number;
+    total: number;
+    percentage: number;
+  }[];
+  completed: boolean;
+  maxDifficultyAchieved: number;
+  message: string;
+}
+
 export default function LessonQuizPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, refreshAppUser } = useAuth();
+  const { user } = useAuth();
   const lessonId = params.lessonId as string;
 
-  const [session, setSession] = useState<QuizSession | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-  const [currentDifficulty, setCurrentDifficulty] = useState(5);
-  const [minDifficulty, setMinDifficulty] = useState(1);
-  const [maxDifficulty, setMaxDifficulty] = useState(10);
-  const [completionCriteriaMet, setCompletionCriteriaMet] = useState(false);
+  const [currentDifficulty, setCurrentDifficulty] = useState(1);
+  const [lessonMin, setLessonMin] = useState(1);
+  const [lessonMax, setLessonMax] = useState(10);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
-  const [usedQuestionIds, setUsedQuestionIds] = useState<Set<string>>(new Set());
-  const [responses, setResponses] = useState<AssessmentResponse[]>([]);
+  const [usedQuestionIds, setUsedQuestionIds] = useState<string[]>([]);
+  const [questionResults, setQuestionResults] = useState<QuestionResult[]>([]);
+  const [maxDifficultyAnsweredCorrectly, setMaxDifficultyAnsweredCorrectly] = useState(0);
+  const [availableQuestions, setAvailableQuestions] = useState<Question[]>([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackData, setFeedbackData] = useState<{
     isCorrect: boolean;
@@ -38,7 +56,8 @@ export default function LessonQuizPage() {
   } | null>(null);
   const [continueEnabled, setContinueEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCompleting, setIsCompleting] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [quizResults, setQuizResults] = useState<QuizResults | null>(null);
 
   // Fetch lesson details
   const { data: lesson } = useQuery({
@@ -56,164 +75,122 @@ export default function LessonQuizPage() {
     enabled: !!lessonId,
   });
 
-  // Get lesson difficulty range
-  const getLessonDifficultyRange = useCallback(async () => {
-    if (!lessonId) return { min: 1, max: 10 };
+  // Find closest available difficulty question
+  const findClosestQuestion = (targetDifficulty: number, questions: Question[], usedIds: string[]): Question | null => {
+    const unusedQuestions = questions.filter(q => !usedIds.includes(q.question_id));
+    
+    if (unusedQuestions.length === 0) return null;
+    
+    // Find question with closest difficulty (Option 2: closest overall)
+    return unusedQuestions.reduce((prev, curr) => 
+      Math.abs(curr.difficulty - targetDifficulty) < Math.abs(prev.difficulty - targetDifficulty) ? curr : prev
+    );
+  };
+
+  // Update difficulty based on answer
+  const updateDifficulty = (current: number, correct: boolean): number => {
+    const adjustment = correct ? 0.5 : -1.0;
+    const newDifficulty = current + adjustment;
+    // Apply floor/ceiling constraints
+    return Math.max(lessonMin, Math.min(newDifficulty, lessonMax));
+  };
+
+  // Select next question based on current difficulty
+  const selectNextQuestion = useCallback(async (targetDifficulty: number, questions: Question[], usedIds: string[]) => {
+    // Round down to nearest whole number for question selection
+    const questionDifficulty = Math.floor(targetDifficulty);
+    
+    // Find closest available question
+    const question = findClosestQuestion(questionDifficulty, questions, usedIds);
+    
+    if (question) {
+      setCurrentQuestion(question);
+    } else {
+      console.error('No available questions found');
+      await completeQuiz();
+    }
+  }, []);
+
+  // Initialize quiz by loading questions and setting difficulty range
+  const initializeQuiz = useCallback(async () => {
+    if (!lessonId || !user) return;
 
     try {
-      const { data, error } = await supabase
+      setIsLoading(true);
+      
+      // Fetch all questions for this lesson
+      const { data: questions, error } = await supabase
         .from('questions')
-        .select('difficulty')
+        .select('*')
         .eq('lesson_id', lessonId);
 
-      if (error || !data || data.length === 0) {
-        console.warn('No questions found for lesson, using default range');
-        return { min: 1, max: 10 };
+      if (error || !questions || questions.length === 0) {
+        console.error('No questions found for lesson:', error);
+        return;
       }
 
-      const difficulties = data.map(q => q.difficulty).filter(d => d != null);
+      // Set available questions
+      setAvailableQuestions(questions);
+
+      // Calculate lesson difficulty range
+      const difficulties = questions.map(q => q.difficulty).filter(d => d != null);
       const min = Math.min(...difficulties);
       const max = Math.max(...difficulties);
       
-      return { min, max };
-    } catch (error) {
-      console.error('Error getting lesson difficulty range:', error);
-      return { min: 1, max: 10 };
-    }
-  }, [lessonId]);
-
-  // 5-minute inactivity timeout
-  useInactivityTimeout(5 * 60 * 1000, async () => {
-    if (session) {
-      await supabase
-        .from('quiz_sessions')
-        .update({ status: 'abandoned' })
-        .eq('id', session.id);
-      router.push('/pathway');
-    }
-  });
-
-  const startQuiz = useCallback(async () => {
-    if (!user || !lessonId) return;
-
-    try {
-      setIsLoading(true);
-
-      // Abandon any existing session for this lesson
-      const { data: activeSession } = await supabase
-        .from('quiz_sessions')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('lesson_id', lessonId)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      if (activeSession) {
-        await supabase
-          .from('quiz_sessions')
-          .update({ status: 'abandoned' })
-          .eq('id', activeSession.id);
-        
-        userHistoryCache.invalidateContext(user.id, lessonId);
-      }
-
-      // Get lesson difficulty range first
-      const { min, max } = await getLessonDifficultyRange();
-      setMinDifficulty(min);
-      setMaxDifficulty(max);
-      setCurrentDifficulty(min); // Start at minimum difficulty
-      setCompletionCriteriaMet(false);
-
-      // Create new session
-      const { data: newSession, error } = await supabase
-        .from('quiz_sessions')
-        .insert({
-          user_id: user.id,
-          lesson_id: lessonId,
-          session_type: 'lesson',
-          current_difficulty: min,
-          questions_answered: 0,
-          correct_answers: 0,
-          status: 'active'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setSession(newSession);
-      await loadNextQuestion();
-    } catch (error) {
-      console.error('Error starting quiz:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user, lessonId, getLessonDifficultyRange]);
-
-  const loadNextQuestion = useCallback(async () => {
-    if (!user || !lessonId) return;
-
-    try {
-      setIsLoading(true);
+      setLessonMin(min);
+      setLessonMax(max);
+      setCurrentDifficulty(min); // Start at lesson minimum
       
-      const question = await selectNextQuestion({
-        userId: user.id,
-        context: lessonId,
-        currentDifficulty,
-        usedQuestionIds,
-        lessonId,
-      });
-
-      if (question) {
-        setCurrentQuestion(question);
-        setUsedQuestionIds(prev => new Set([...Array.from(prev), question.question_id]));
-      } else {
-        console.error('No questions available for this lesson');
-        await completeQuiz();
-      }
+      // Load first question
+      await selectNextQuestion(min, questions, []);
     } catch (error) {
-      console.error('Error loading question:', error);
+      console.error('Error initializing quiz:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [user, lessonId, currentDifficulty, usedQuestionIds]);
+  }, [lessonId, user, selectNextQuestion]);
 
+  // Handle answer submission
   const handleAnswer = async (selectedOption: number, question: Question) => {
-    if (!user || !session) return;
+    if (!user) return;
 
     try {
       setIsLoading(true);
       const isCorrect = selectedOption === question.correct_answer;
       
-      // Store response
-      const response: AssessmentResponse = {
+      // Store result
+      const result: QuestionResult = {
         questionId: question.question_id,
-        isCorrect,
         difficulty: question.difficulty,
+        correct: isCorrect,
+        userAnswer: selectedOption,
+        correctAnswer: question.correct_answer,
       };
       
-      setResponses(prev => [...prev, response]);
-
-      // Update difficulty with clamping to lesson's min/max range
-      const newDifficulty = adjustDifficulty(currentDifficulty, isCorrect);
-      const clampedDifficulty = Math.max(minDifficulty, Math.min(maxDifficulty, newDifficulty));
-      setCurrentDifficulty(clampedDifficulty);
-
-      // Check if completion criteria met (answered max difficulty question correctly)
-      if (isCorrect && question.difficulty === maxDifficulty) {
-        setCompletionCriteriaMet(true);
+      setQuestionResults(prev => [...prev, result]);
+      
+      // Update max difficulty answered correctly
+      if (isCorrect && question.difficulty > maxDifficultyAnsweredCorrectly) {
+        setMaxDifficultyAnsweredCorrectly(question.difficulty);
       }
-
+      
+      // Update difficulty for next question
+      const newDifficulty = updateDifficulty(currentDifficulty, isCorrect);
+      setCurrentDifficulty(newDifficulty);
+      
+      // Add to used questions
+      setUsedQuestionIds(prev => [...prev, question.question_id]);
+      
       // Record in database
-      await recordQuestionAnswer(
-        user.id,
-        question.question_id,
-        lessonId,
-        isCorrect,
-        question.difficulty
-      );
-
-      // Difficulty already updated above with clamping
+      await supabase
+        .from('user_question_history')
+        .upsert({
+          user_id: user.id,
+          question_id: question.question_id,
+          context: lessonId,
+          answered_correctly: isCorrect,
+          difficulty_at_time: question.difficulty,
+        });
 
       // Show feedback popup
       setFeedbackData({
@@ -228,18 +205,6 @@ export default function LessonQuizPage() {
         setContinueEnabled(true);
       }, 5000);
 
-      // Update session
-      const correctAnswers = responses.filter(r => r.isCorrect).length + (isCorrect ? 1 : 0);
-      await supabase
-        .from('quiz_sessions')
-        .update({
-          last_activity_at: new Date().toISOString(),
-          questions_answered: questionsAnswered + 1,
-          correct_answers: correctAnswers,
-          current_difficulty: clampedDifficulty,
-        })
-        .eq('id', session.id);
-
     } catch (error) {
       console.error('Error handling answer:', error);
     } finally {
@@ -247,6 +212,7 @@ export default function LessonQuizPage() {
     }
   };
 
+  // Handle continue after feedback
   const handleContinue = async () => {
     setShowFeedback(false);
     setContinueEnabled(false);
@@ -255,61 +221,102 @@ export default function LessonQuizPage() {
     if (questionsAnswered + 1 >= TOTAL_QUESTIONS) {
       await completeQuiz();
     } else {
-      await loadNextQuestion();
+      await selectNextQuestion(currentDifficulty, availableQuestions, usedQuestionIds);
     }
   };
 
+  // Calculate quiz results
+  const calculateResults = (): QuizResults => {
+    const totalCorrect = questionResults.filter(r => r.correct).length;
+    const percentage = Math.round((totalCorrect / TOTAL_QUESTIONS) * 100);
+    
+    // Group by difficulty
+    const difficultyGroups: { [key: number]: { correct: number; total: number } } = {};
+    
+    questionResults.forEach(result => {
+      if (!difficultyGroups[result.difficulty]) {
+        difficultyGroups[result.difficulty] = { correct: 0, total: 0 };
+      }
+      difficultyGroups[result.difficulty].total++;
+      if (result.correct) {
+        difficultyGroups[result.difficulty].correct++;
+      }
+    });
+    
+    const difficultyBreakdown = Object.entries(difficultyGroups).map(([diff, stats]) => ({
+      difficulty: parseInt(diff),
+      correct: stats.correct,
+      total: stats.total,
+      percentage: Math.round((stats.correct / stats.total) * 100),
+    })).sort((a, b) => a.difficulty - b.difficulty);
+    
+    const completed = maxDifficultyAnsweredCorrectly >= lessonMax;
+    
+    // Dynamic messages based on performance
+    let message: string;
+    if (completed && percentage >= 90) {
+      message = "Outstanding! You've mastered this lesson with excellent performance at all levels.";
+    } else if (completed && percentage >= 70) {
+      message = "Great work! You've successfully completed this lesson and demonstrated solid understanding.";
+    } else if (completed) {
+      message = "Well done! You've completed the lesson. Consider reviewing the concepts to strengthen your understanding.";
+    } else if (percentage >= 80) {
+      message = "Good effort! You've shown strong understanding but need to tackle the highest difficulty questions to complete the lesson.";
+    } else if (percentage >= 60) {
+      message = "Nice try! Review the lesson materials and practice more to improve your performance and complete the lesson.";
+    } else {
+      message = "Keep practicing! Review the fundamentals and try again to strengthen your understanding of these concepts.";
+    }
+    
+    return {
+      totalCorrect,
+      totalQuestions: TOTAL_QUESTIONS,
+      percentage,
+      difficultyBreakdown,
+      completed,
+      maxDifficultyAchieved: maxDifficultyAnsweredCorrectly,
+      message,
+    };
+  };
+
+  // Complete quiz and show results
   const completeQuiz = async () => {
-    if (!user || !session) return;
+    if (!user) return;
 
     try {
-      setIsCompleting(true);
+      const results = calculateResults();
+      setQuizResults(results);
       
-      const finalLiteracyLevel = calculateLiteracyLevel(responses);
-      const passed = completionCriteriaMet; // Based on answering max difficulty correctly
-
-      // Mark lesson as completed if passed
-      if (passed) {
+      // Update database if lesson completed
+      if (results.completed) {
         await supabase
           .from('user_progress')
           .upsert({
             user_id: user.id,
             lesson_id: lessonId,
             completed: true,
-            score: finalLiteracyLevel,
+            attempts: 1, // Should be incremented properly
             completed_at: new Date().toISOString(),
-            attempts: 1, // This should be incremented properly in a real app
           });
-
-        // Update user's literacy level
-        await updateUserLiteracyLevel(user.id);
-        await refreshAppUser();
       }
-
-      // Complete session
-      await supabase
-        .from('quiz_sessions')
-        .update({
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-        })
-        .eq('id', session.id);
-
-      // Navigate back to pathway
-      router.push('/pathway');
+      
+      setShowResults(true);
     } catch (error) {
       console.error('Error completing quiz:', error);
-    } finally {
-      setIsCompleting(false);
     }
   };
 
-  // Start quiz on component mount
+  // Return to pathway
+  const returnToPathway = () => {
+    router.push('/pathway');
+  };
+
+  // Initialize quiz on mount
   useEffect(() => {
-    if (user && lessonId && !session) {
-      startQuiz();
+    if (user && lessonId && !showResults) {
+      initializeQuiz();
     }
-  }, [user, lessonId, session, startQuiz]);
+  }, [user, lessonId, showResults, initializeQuiz]);
 
   if (!user) {
     return (
@@ -321,13 +328,97 @@ export default function LessonQuizPage() {
     );
   }
 
-  if (isCompleting) {
+  if (showResults && quizResults) {
     return (
-      <Container maxWidth="sm" sx={{ textAlign: 'center', mt: 8 }}>
-        <CircularProgress size={60} sx={{ color: '#FF6B35', mb: 3 }} />
-        <Typography variant="h6" gutterBottom>
-          Completing lesson...
-        </Typography>
+      <Container maxWidth="lg" sx={{ py: 4, minHeight: '100vh' }}>
+        <Card sx={{ backgroundColor: '#4a4a4a', borderRadius: 2, mb: 4 }}>
+          <CardContent sx={{ p: 4 }}>
+            <Typography variant="h3" sx={{ 
+              color: '#FF6B35', 
+              fontWeight: 'bold', 
+              textAlign: 'center',
+              mb: 2
+            }}>
+              Quiz Results
+            </Typography>
+            
+            <Typography variant="h4" sx={{ 
+              color: quizResults.completed ? '#4CAF50' : '#F44336',
+              textAlign: 'center',
+              mb: 4
+            }}>
+              {quizResults.completed ? '✅ Lesson Completed!' : '❌ Lesson Incomplete'}
+            </Typography>
+
+            {/* Overall Score */}
+            <Box sx={{ mb: 4, textAlign: 'center' }}>
+              <Typography variant="h5" sx={{ color: '#E0E0E0', mb: 2 }}>
+                Overall Score: {quizResults.totalCorrect}/{quizResults.totalQuestions} ({quizResults.percentage}%)
+              </Typography>
+            </Box>
+
+            {/* Performance by Difficulty */}
+            <Typography variant="h6" sx={{ color: '#FF6B35', mb: 3 }}>
+              Performance by Difficulty Level:
+            </Typography>
+            
+            {quizResults.difficultyBreakdown.map(level => (
+              <Box key={level.difficulty} sx={{ mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography sx={{ color: '#E0E0E0' }}>
+                    Level {level.difficulty}
+                  </Typography>
+                  <Typography sx={{ color: '#E0E0E0' }}>
+                    {level.correct}/{level.total} ({level.percentage}%)
+                  </Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={level.percentage}
+                  sx={{
+                    height: 12,
+                    borderRadius: 6,
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: level.percentage === 100 ? '#4CAF50' : 
+                                      level.percentage >= 75 ? '#FF9800' : 
+                                      level.percentage >= 50 ? '#2196F3' : '#F44336',
+                      borderRadius: 6,
+                    },
+                  }}
+                />
+              </Box>
+            ))}
+
+            {/* Message */}
+            <Typography variant="body1" sx={{ 
+              color: '#E0E0E0', 
+              textAlign: 'center',
+              mt: 4,
+              mb: 4,
+              fontStyle: 'italic'
+            }}>
+              {quizResults.message}
+            </Typography>
+
+            {/* Continue Button */}
+            <Box sx={{ textAlign: 'center' }}>
+              <Button
+                variant="contained"
+                onClick={returnToPathway}
+                sx={{ 
+                  backgroundColor: '#FF6B35',
+                  '&:hover': { backgroundColor: '#e55a2b' },
+                  px: 6,
+                  py: 2,
+                  fontSize: '1.1rem'
+                }}
+              >
+                Continue to Learning Pathway
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
       </Container>
     );
   }
@@ -373,8 +464,8 @@ export default function LessonQuizPage() {
         <Box sx={{ display: 'flex', gap: 1 }}>
           {Array.from({ length: TOTAL_QUESTIONS }, (_, index) => {
             let color = 'rgba(255, 255, 255, 0.2)'; // Empty/unanswered
-            if (index < responses.length) {
-              color = responses[index].isCorrect ? '#4CAF50' : '#F44336'; // Green for correct, red for incorrect
+            if (index < questionResults.length) {
+              color = questionResults[index].correct ? '#4CAF50' : '#F44336'; // Green for correct, red for incorrect
             }
             
             return (
@@ -395,7 +486,7 @@ export default function LessonQuizPage() {
 
       {/* Question Display */}
       {isLoading && !showFeedback ? (
-        <Box sx={{ display: 'flex', justify: 'center', py: 8 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress size={60} sx={{ color: '#FF6B35' }} />
         </Box>
       ) : currentQuestion ? (
