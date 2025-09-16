@@ -11,7 +11,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshAppUser: () => Promise<void>;
 }
@@ -95,14 +95,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, password: string, name: string) => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
       throw error;
+    }
+
+    // If auth signup successful, create user record in our custom table
+    if (data.user) {
+      const { error: userError } = await supabase
+        .from('users')
+        .insert({
+          id: data.user.id,
+          name,
+          email,
+          literacy_level: 5,
+          assessment_taken: false,
+          current_pathway_level: 2,
+        });
+
+      if (userError) {
+        // If user creation fails, we should ideally clean up the auth user
+        // but for simplicity, we'll just throw the error
+        console.error('Failed to create user record:', userError);
+        throw new Error('Failed to create user account. Please try again.');
+      }
     }
   };
 

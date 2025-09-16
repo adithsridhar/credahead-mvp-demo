@@ -7,6 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Users table (automatically created by Supabase Auth, but we need our custom fields)
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   literacy_level INTEGER DEFAULT 5 CHECK (literacy_level >= 1 AND literacy_level <= 10),
   assessment_taken BOOLEAN DEFAULT FALSE,

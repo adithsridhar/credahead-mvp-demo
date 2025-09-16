@@ -26,6 +26,7 @@ export const supabaseAdmin = typeof window === 'undefined' ? createClient(
      // Database types
      export interface User {
        id: string;
+       name: string;
        email: string;
        literacy_level: number;
        assessment_taken: boolean;

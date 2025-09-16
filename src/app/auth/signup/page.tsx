@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function SignUpPage() {
   const router = useRouter();
   const { signUp } = useAuth();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,7 +20,7 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
@@ -37,7 +38,7 @@ export default function SignUpPage() {
     try {
       setLoading(true);
       setError('');
-      await signUp(email, password);
+      await signUp(email, password, name);
       setSuccess('Account created! Please check your email to verify your account.');
       setTimeout(() => {
         router.push('/auth/signin');
@@ -88,11 +89,41 @@ export default function SignUpPage() {
             margin="normal"
             required
             fullWidth
+            id="name"
+            label="Full Name"
+            name="name"
+            autoComplete="name"
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#666',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#FF6B35',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#FF6B35',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#E0E0E0',
+                '&.Mui-focused': {
+                  color: '#FF6B35',
+                },
+              },
+            }}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
             id="email"
             label="Email Address"
             name="email"
             autoComplete="email"
-            autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             sx={{
