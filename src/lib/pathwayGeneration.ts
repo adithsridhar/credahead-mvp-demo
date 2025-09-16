@@ -36,6 +36,7 @@ export async function generatePathway(userId: string, userLiteracyLevel: number)
       return [];
     }
 
+
     // Fetch user's progress
     const { data: progress, error: progressError } = await supabase
       .from('user_progress')
@@ -59,6 +60,7 @@ export async function generatePathway(userId: string, userLiteracyLevel: number)
     
     // Check if all lessons at current accessible level are completed
     const currentLevelLessons = lessons.filter(l => l.level === currentAccessibleLevel);
+    
     if (currentLevelLessons.length > 0) {
       const allCurrentLevelCompleted = currentLevelLessons.every(l => 
         completedLessons.has(l.lesson_id)
@@ -75,6 +77,24 @@ export async function generatePathway(userId: string, userLiteracyLevel: number)
       }
     }
 
+    // Get all prerequisites and their levels upfront to avoid async issues
+    const allPrereqs = lessons.flatMap(l => l.prerequisites || []);
+    const prereqLevelMap = new Map<string, number>();
+    
+    if (allPrereqs.length > 0) {
+      const { data: prereqLessons } = await supabase
+        .from('lessons')
+        .select('lesson_id, level')
+        .in('lesson_id', allPrereqs);
+      
+      if (prereqLessons) {
+        prereqLessons.forEach(lesson => {
+          prereqLevelMap.set(lesson.lesson_id, lesson.level);
+        });
+      }
+    }
+    
+
     // Build pathway with proper status
     return lessons.map(lesson => {
       const userProgress = progressMap.get(lesson.lesson_id);
@@ -85,6 +105,7 @@ export async function generatePathway(userId: string, userLiteracyLevel: number)
       let isLocked = false;
       let lockReason: string | null = null;
 
+
       if (isCompleted) {
         status = 'completed';
       } else if (lesson.level > currentAccessibleLevel) {
@@ -94,16 +115,23 @@ export async function generatePathway(userId: string, userLiteracyLevel: number)
         lockReason = `Complete all Level ${currentAccessibleLevel} lessons first`;
       } else if (lesson.level === currentAccessibleLevel) {
         // For current level, check prerequisites (ignore lower level ones)
+        // Filter prerequisites to only include those from current or higher levels
         const relevantPrereqs = (lesson.prerequisites || []).filter((prereq: string) => {
-          // We'll do a simple check here - if it's not completed, assume it's required
-          // The more complex logic is better handled in a separate validation step
+          const prereqLevel = prereqLevelMap.get(prereq);
+          // If we can't find the prereq level, assume it's required for safety
+          // If prereq level < current literacy level, ignore it (auto-satisfied)
+          return prereqLevel === undefined || prereqLevel >= currentLiteracyLevel;
+        });
+        
+        // Then check if these relevant prerequisites are completed
+        const unmetPrereqs = relevantPrereqs.filter((prereq: string) => {
           return !completedLessons.has(prereq);
         });
         
-        if (relevantPrereqs.length > 0) {
+        if (unmetPrereqs.length > 0) {
           status = 'locked';
           isLocked = true;
-          lockReason = `Prerequisites required: ${relevantPrereqs.join(', ')}`;
+          lockReason = `Prerequisites required: ${unmetPrereqs.join(', ')}`;
         } else {
           status = 'available';
         }
