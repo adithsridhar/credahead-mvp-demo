@@ -105,24 +105,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
 
-    // If auth signup successful, create user record in our custom table
+    // The database trigger will create the user record automatically
+    // We need to update it with the name after creation
     if (data.user) {
-      const { error: userError } = await supabase
+      // Wait a moment for the trigger to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const { error: updateError } = await supabase
         .from('users')
-        .insert({
-          id: data.user.id,
-          name,
-          email,
-          literacy_level: 5,
-          assessment_taken: false,
-          current_pathway_level: 2,
-        });
+        .update({ name })
+        .eq('id', data.user.id);
 
-      if (userError) {
-        // If user creation fails, we should ideally clean up the auth user
-        // but for simplicity, we'll just throw the error
-        console.error('Failed to create user record:', userError);
-        throw new Error('Failed to create user account. Please try again.');
+      if (updateError) {
+        console.error('Failed to update user name:', updateError);
+        throw new Error('Account created but failed to save name. Please contact support.');
       }
     }
   };
