@@ -162,7 +162,7 @@ export default function AdminDashboard() {
       {/* Overview Tab */}
       <TabPanel value={tabValue} index={0}>
         {statsLoading ? (
-          <Box sx={{ display: 'flex', justify: 'center', py: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress size={60} sx={{ color: '#FF6B35' }} />
           </Box>
         ) : (
@@ -277,7 +277,7 @@ export default function AdminDashboard() {
                   {Array.from({ length: 10 }, (_, i) => i + 1).map(level => {
                     const count = stats?.lessons.filter(l => l.level === level).length || 0;
                     return (
-                      <Box key={level} sx={{ display: 'flex', justify: 'space-between', mb: 1 }}>
+                      <Box key={level} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                         <Typography>Level {level}</Typography>
                         <Chip label={count} size="small" />
                       </Box>
