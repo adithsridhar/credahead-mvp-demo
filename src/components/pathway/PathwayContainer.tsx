@@ -4,8 +4,18 @@ import { useState, useEffect, useRef } from 'react';
 import { Box, Fab, Typography } from '@mui/material';
 import { KeyboardArrowUp } from '@mui/icons-material';
 import { type LessonWithProgress } from '@/lib/pathwayGeneration';
-import LessonNode from './LessonNode';
-import PathConnector from './PathConnector';
+import { PATHWAY_CONFIG } from './pathwayConfig';
+import { 
+  calculatePathwayDimensions,
+  calculateGraduationPosition,
+  getGraduationInfo,
+  calculateScrollPosition,
+  type PathwayDimensions 
+} from './pathwayUtils';
+import CurvedPath from './HighwayPath';
+import HighwayLessonNode from './HighwayLessonNode';
+import StraightGraduationDivider from './StraightGraduationDivider';
+import LevelUpPopup from './LevelUpPopup';
 import LessonDetailPopup from './LessonDetailPopup';
 
 interface PathwayContainerProps {
@@ -21,6 +31,8 @@ export default function PathwayContainer({
 }: PathwayContainerProps) {
   const [selectedLesson, setSelectedLesson] = useState<LessonWithProgress | null>(null);
   const [showReturnButton, setShowReturnButton] = useState(false);
+  const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
+  const [levelUpData, setLevelUpData] = useState<{from: number, to: number} | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const currentLessonRef = useRef<HTMLDivElement>(null);
 
@@ -32,27 +44,56 @@ export default function PathwayContainer({
     return 'available';
   };
 
-  // Find current lesson index
+  // Calculate pathway dimensions using centralized utilities
+  const dimensions = calculatePathwayDimensions(lessons);
+  const graduationInfo = getGraduationInfo(lessons);
   const currentLessonIndex = lessons.findIndex(lesson => lesson.lesson_id === currentLessonId);
 
-  // Auto-scroll to current lesson on mount
+  // Group lessons by level and detect level completions
+  const lessonsByLevel = lessons.reduce((acc, lesson) => {
+    if (!acc[lesson.level]) acc[lesson.level] = [];
+    acc[lesson.level].push(lesson);
+    return acc;
+  }, {} as Record<number, LessonWithProgress[]>);
+
+  // Check for level completions and show popup
   useEffect(() => {
-    if (currentLessonRef.current && containerRef.current) {
-      const container = containerRef.current;
-      const currentElement = currentLessonRef.current;
+    const levels = Object.keys(lessonsByLevel).map(Number).sort((a, b) => a - b);
+    
+    for (const level of levels) {
+      const levelLessons = lessonsByLevel[level];
+      const allCompleted = levelLessons.every(lesson => lesson.status === 'completed');
       
-      // Calculate scroll position to center the current lesson
-      const containerHeight = container.clientHeight;
-      const elementTop = currentElement.offsetTop;
-      const elementHeight = currentElement.clientHeight;
-      const scrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
-      
-      container.scrollTo({
-        top: Math.max(0, scrollTop),
-        behavior: 'smooth'
-      });
+      if (allCompleted && levelLessons.length > 0) {
+        const nextLevel = levels.find(l => l > level);
+        if (nextLevel) {
+          // Check if we should show level up popup (only once per level completion)
+          const lastCompletedLesson = levelLessons[levelLessons.length - 1];
+          if (lastCompletedLesson.lesson_id === currentLessonId) {
+            setLevelUpData({ from: level, to: nextLevel });
+            setShowLevelUpPopup(true);
+          }
+        }
+      }
     }
-  }, [currentLessonId]);
+  }, [lessons, currentLessonId, lessonsByLevel]);
+
+  // Enhanced auto-scroll using centralized utilities - only on lesson change
+  useEffect(() => {
+    if (currentLessonIndex !== -1 && containerRef.current && currentLessonId) {
+      const container = containerRef.current;
+      const containerHeight = container.clientHeight;
+      const scrollTop = calculateScrollPosition(currentLessonIndex, containerHeight, dimensions);
+      
+      // Add delay for smooth rendering
+      setTimeout(() => {
+        container.scrollTo({
+          top: scrollTop,
+          behavior: 'smooth'
+        });
+      }, PATHWAY_CONFIG.viewport.auto_scroll_delay);
+    }
+  }, [currentLessonId]); // Only depend on currentLessonId, not dimensions
 
   // Handle scroll to show/hide return button
   useEffect(() => {
@@ -88,14 +129,10 @@ export default function PathwayContainer({
   };
 
   const scrollToCurrentLesson = () => {
-    if (currentLessonRef.current && containerRef.current) {
+    if (currentLessonIndex !== -1 && containerRef.current) {
       const container = containerRef.current;
-      const currentElement = currentLessonRef.current;
-      
       const containerHeight = container.clientHeight;
-      const elementTop = currentElement.offsetTop;
-      const elementHeight = currentElement.clientHeight;
-      const scrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
+      const scrollTop = calculateScrollPosition(currentLessonIndex, containerHeight, dimensions);
       
       container.scrollTo({
         top: Math.max(0, scrollTop),
@@ -160,52 +197,70 @@ export default function PathwayContainer({
           </Typography>
         </Box>
 
-        {/* Pathway */}
+        {/* Straight Pathway */}
         <Box sx={{ 
-          maxWidth: '600px',
+          maxWidth: PATHWAY_CONFIG.container.max_width,
           mx: 'auto',
           py: 4,
           px: 2,
           position: 'relative',
+          minHeight: `${dimensions.containerHeight}px`,
         }}>
+          {/* Straight Path Background */}
+          <CurvedPath 
+            dimensions={dimensions}
+            graduationPositions={graduationInfo.positions}
+          />
+          
+          {/* Lesson Nodes */}
           {lessons.map((lesson, index) => {
             const isCurrentLesson = lesson.lesson_id === currentLessonId;
             const lessonState = getLessonState(lesson, index);
-            const position = index % 2 === 0 ? 'left' : 'right';
-            const isLast = index === lessons.length - 1;
             
-            // Determine connector state
-            const connectorState = lesson.status === 'completed' ? 'completed' : 'upcoming';
-
             return (
-              <Box 
+              <Box
                 key={lesson.lesson_id}
                 ref={isCurrentLesson ? currentLessonRef : undefined}
+                sx={{ position: 'relative' }}
               >
-                <LessonNode
+                <HighwayLessonNode
                   lesson={lesson}
-                  position={position}
                   state={lessonState}
                   onClick={() => handleLessonClick(lesson)}
+                  lessonIndex={index}
+                  dimensions={dimensions}
                 />
-                
-                {!isLast && (
-                  <PathConnector
-                    fromPosition={position}
-                    toPosition={index % 2 === 0 ? 'right' : 'left'}
-                    state={connectorState}
-                  />
-                )}
               </Box>
+            );
+          })}
+          
+          {/* Graduation Dividers */}
+          {graduationInfo.indices.map((lessonIndex, graduationIndex) => {
+            const lesson = lessons[lessonIndex];
+            const nextLesson = lessons[lessonIndex + 1];
+            
+            if (!nextLesson) return null;
+            
+            const graduationPosition = calculateGraduationPosition(graduationIndex, lessonIndex, dimensions);
+            
+            return (
+              <StraightGraduationDivider
+                key={`graduation-${lessonIndex}`}
+                x={graduationPosition.x}
+                y={graduationPosition.y}
+                currentLevel={lesson.level}
+                nextLevel={nextLesson.level}
+                isCompleted={lesson.status === 'completed'}
+              />
             );
           })}
         </Box>
 
         {/* Spacer for bottom padding */}
-        <Box sx={{ height: '200px' }} />
+        <Box sx={{ height: `${PATHWAY_CONFIG.spacing.end_padding}px` }} />
       </Box>
 
-      {/* Return to Current Lesson Button */}
+      {/* Semi-transparent Return to Current Lesson Button */}
       {showReturnButton && currentLessonId && (
         <Fab
           onClick={scrollToCurrentLesson}
@@ -213,16 +268,35 @@ export default function PathwayContainer({
             position: 'fixed',
             bottom: 24,
             right: 24,
-            backgroundColor: 'rgba(255, 107, 53, 0.7)',
-            color: 'white',
+            backgroundColor: 'rgba(255, 107, 53, 0.4)', // More transparent base
+            backdropFilter: 'blur(10px)', // Glass effect
+            color: 'rgba(255, 255, 255, 0.9)',
+            border: '1px solid rgba(255, 107, 53, 0.3)',
+            transition: 'all 0.3s ease',
             '&:hover': {
-              backgroundColor: '#FF6B35',
+              backgroundColor: 'rgba(255, 107, 53, 0.7)', // Less transparent on hover
+              backdropFilter: 'blur(15px)',
+              transform: 'scale(1.05)',
+              boxShadow: '0 8px 20px rgba(255, 107, 53, 0.3)',
             },
             zIndex: 1000,
           }}
         >
           <KeyboardArrowUp />
         </Fab>
+      )}
+
+      {/* Level Up Popup */}
+      {levelUpData && (
+        <LevelUpPopup
+          open={showLevelUpPopup}
+          fromLevel={levelUpData.from}
+          toLevel={levelUpData.to}
+          onClose={() => {
+            setShowLevelUpPopup(false);
+            setLevelUpData(null);
+          }}
+        />
       )}
 
       {/* Lesson Detail Popup */}

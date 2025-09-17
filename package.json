@@ -9,7 +9,9 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "validate": "npm run type-check && npm run lint",
-    "pre-commit": "npm run validate"
+    "pre-commit": "npm run validate",
+    "fix-ts": "rm -rf .next && rm -rf tsconfig.tsbuildinfo && npm run type-check",
+    "clean": "rm -rf .next && rm -rf tsconfig.tsbuildinfo"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
