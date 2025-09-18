@@ -14,9 +14,9 @@ BEGIN
     new.id, 
     new.email, 
     COALESCE(new.raw_user_meta_data->>'name', 'User'), -- Use metadata name or default
-    5, 
+    1, -- Start with literacy level 1 (beginner, before assessment)
     false, 
-    2
+    1 -- Start with pathway level 1
   );
   RETURN new;
 END;

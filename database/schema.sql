@@ -9,9 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
-  literacy_level INTEGER DEFAULT 5 CHECK (literacy_level >= 1 AND literacy_level <= 10),
+  literacy_level INTEGER DEFAULT 1 CHECK (literacy_level >= 1 AND literacy_level <= 10),
   assessment_taken BOOLEAN DEFAULT FALSE,
-  current_pathway_level INTEGER DEFAULT 2 CHECK (current_pathway_level >= 1 AND current_pathway_level <= 10),
+  current_pathway_level INTEGER DEFAULT 1 CHECK (current_pathway_level >= 1 AND current_pathway_level <= 10),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -118,7 +118,7 @@ CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
   INSERT INTO public.users (id, email, literacy_level, assessment_taken, current_pathway_level)
-  VALUES (new.id, new.email, 5, false, 2);
+  VALUES (new.id, new.email, 1, false, 1);
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

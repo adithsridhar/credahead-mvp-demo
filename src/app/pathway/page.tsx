@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import {
   Container,
   CircularProgress,
   Alert,
   Typography,
   Box,
+  Button,
 } from '@mui/material';
 import { useAuth } from '@/contexts/AuthContext';
 import { generatePathway, type LessonWithProgress } from '@/lib/pathwayGeneration';
@@ -43,6 +45,36 @@ export default function PathwayPage() {
         <Typography variant="h5" gutterBottom>
           Please sign in to view your learning pathway
         </Typography>
+      </Container>
+    );
+  }
+
+  // Check if user has completed assessment
+  if (!appUser.assessment_taken) {
+    return (
+      <Container maxWidth="sm" sx={{ textAlign: 'center', mt: 8 }}>
+        <Typography variant="h4" gutterBottom sx={{ color: '#FF6B35', fontWeight: 'bold' }}>
+          Assessment Required
+        </Typography>
+        <Typography variant="h6" gutterBottom sx={{ color: '#E0E0E0', mb: 4 }}>
+          Please complete the Initial Assessment in order to access your Learning Pathway.
+        </Typography>
+        <Box sx={{ mt: 3 }}>
+          <Link href="/assessment" passHref>
+            <Button 
+              variant="contained" 
+              size="large"
+              sx={{ 
+                backgroundColor: '#FF6B35',
+                '&:hover': { backgroundColor: '#e55a2b' },
+                px: 4,
+                py: 2
+              }}
+            >
+              Take Assessment Now
+            </Button>
+          </Link>
+        </Box>
       </Container>
     );
   }
