@@ -38,11 +38,12 @@ export default function SignUpPage() {
     try {
       setLoading(true);
       setError('');
+      
       await signUp(email, password, name);
-      setSuccess('Account created! Please check your email to verify your account.');
-      setTimeout(() => {
-        router.push('/auth/signin');
-      }, 3000);
+      
+      // Show verification message - no auto redirects or signin attempts
+      setSuccess('Verification email sent. Please check your inbox and validate using the link to proceed.');
+      
     } catch (error: any) {
       setError(error.message || 'Failed to create account');
     } finally {

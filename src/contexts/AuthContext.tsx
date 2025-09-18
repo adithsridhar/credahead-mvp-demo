@@ -68,6 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
+      
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -96,30 +98,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, name: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      throw error;
-    }
-
-    // The database trigger will create the user record automatically
-    // We need to update it with the name after creation
-    if (data.user) {
-      // Wait a moment for the trigger to complete
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      console.log('Creating user account with email verification...');
       
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ name })
-        .eq('id', data.user.id);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: name, // Pass name in metadata for trigger to use
+          }
+        }
+      });
 
-      if (updateError) {
-        console.error('Failed to update user name:', updateError);
-        throw new Error('Account created but failed to save name. Please contact support.');
+      if (error) {
+        console.error('Supabase signup error:', error);
+        
+        // Provide more user-friendly error messages
+        if (error.message?.includes('fetch')) {
+          throw new Error('Unable to connect to authentication service. Please check your internet connection and try again.');
+        }
+        
+        throw error;
       }
+
+      console.log('Account created successfully. Email verification required.');
+      console.log('Signup data:', data);
+      console.log('User created:', data.user ? 'Yes' : 'No');
+      console.log('Session created:', data.session ? 'Yes (auto-signin enabled)' : 'No (email confirmation required)');
+      console.log('User email confirmed:', data.user?.email_confirmed_at ? 'Yes' : 'No');
+      
+      // Account created successfully - user will need to verify email
+      // The database trigger will create the user record with the name from metadata
+      // No need to handle database operations here since user isn't signed in yet
+      
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      
+      // Handle network errors more gracefully
+      if (error.name === 'TypeError' && error.message?.includes('fetch')) {
+        throw new Error('Network error: Unable to connect to the server. Please check your internet connection.');
+      }
+      
+      throw error;
     }
   };
 

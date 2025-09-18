@@ -3,6 +3,23 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
+// Validate environment variables
+if (!supabaseUrl) {
+  throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_URL');
+}
+
+if (!supabaseAnonKey) {
+  throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY');
+}
+
+if (!supabaseUrl.includes('supabase.co')) {
+  console.warn('Warning: Supabase URL does not appear to be valid:', supabaseUrl);
+}
+
+console.log('Supabase configuration:');
+console.log('URL:', supabaseUrl);
+console.log('Key length:', supabaseAnonKey?.length || 0);
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
