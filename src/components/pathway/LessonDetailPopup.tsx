@@ -131,16 +131,6 @@ export default function LessonDetailPopup({
               color: '#FF6B35',
             }}
           />
-          {lesson.estimated_duration && (
-            <Chip
-              label={`${lesson.estimated_duration} min`}
-              variant="outlined"
-              sx={{
-                borderColor: '#E0E0E0',
-                color: '#E0E0E0',
-              }}
-            />
-          )}
         </Box>
 
         {/* Description */}
@@ -240,10 +230,9 @@ export default function LessonDetailPopup({
           onClick={handleStartLesson}
           disabled={lesson.status === 'locked'}
           sx={{
-            backgroundColor: getStatusColor(),
+            backgroundColor: '#FF6B35',
             '&:hover': {
-              backgroundColor: getStatusColor(),
-              opacity: 0.8,
+              backgroundColor: '#e55a2b',
             },
             '&:disabled': {
               backgroundColor: '#6B7280',

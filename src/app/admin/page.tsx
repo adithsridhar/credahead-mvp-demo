@@ -57,21 +57,13 @@ export default function AdminDashboard() {
     queryKey: ['admin-stats'],
     queryFn: async () => {
       try {
-        const [lessonsRes, questionsRes, usersRes, sessionsRes] = await Promise.all([
-          supabase.from('lessons').select('*', { count: 'exact' }).then(res => res || { count: 0, data: [] }),
-          supabase.from('questions').select('*', { count: 'exact' }).then(res => res || { count: 0, data: [] }),
-          supabase.from('users').select('*', { count: 'exact' }).then(res => res || { count: 0, data: [] }),
-          supabase.from('quiz_sessions').select('*', { count: 'exact' }).then(res => res || { count: 0, data: [] }),
-        ]);
-
-        return {
-          totalLessons: lessonsRes.count || 0,
-          totalQuestions: questionsRes.count || 0,
-          totalUsers: usersRes.count || 0,
-          totalSessions: sessionsRes.count || 0,
-          lessons: lessonsRes.data || [],
-          recentUsers: usersRes.data?.slice(0, 5) || [],
-        };
+        const response = await fetch('/api/admin/stats');
+        if (!response.ok) {
+          throw new Error('Failed to fetch admin stats');
+        }
+        const data = await response.json();
+        console.log('Admin dashboard received:', data);
+        return data;
       } catch (error) {
         console.error('Admin stats error:', error);
         return {
@@ -80,7 +72,7 @@ export default function AdminDashboard() {
           totalUsers: 0,
           totalSessions: 0,
           lessons: [],
-          recentUsers: [],
+          allUsers: [],
         };
       }
     },
@@ -224,36 +216,38 @@ export default function AdminDashboard() {
               </Card>
             </Grid>
 
-            {/* Recent Users */}
+            {/* User Data */}
             <Grid item xs={12} md={6}>
               <Card sx={{ backgroundColor: '#4a4a4a' }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom sx={{ color: '#FF6B35' }}>
-                    Recent Users
+                    User Data
                   </Typography>
-                  <TableContainer>
-                    <Table size="small">
+                  <TableContainer sx={{ maxHeight: 400 }}>
+                    <Table size="small" stickyHeader>
                       <TableHead>
                         <TableRow>
                           <TableCell>Email</TableCell>
-                          <TableCell>Level</TableCell>
+                          <TableCell>Name</TableCell>
+                          <TableCell>Current Level</TableCell>
                           <TableCell>Assessment</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {stats?.recentUsers.map((user) => (
+                        {stats?.allUsers.map((user) => (
                           <TableRow key={user.id}>
                             <TableCell>{user.email}</TableCell>
+                            <TableCell>{user.name}</TableCell>
                             <TableCell>
                               <Chip 
-                                label={user.literacy_level} 
+                                label={`Level ${user.literacy_level}`} 
                                 size="small" 
                                 sx={{ backgroundColor: '#FF6B35', color: 'white' }}
                               />
                             </TableCell>
                             <TableCell>
                               <Chip 
-                                label={user.assessment_taken ? 'Completed' : 'Pending'} 
+                                label={user.assessment_taken ? `Score: ${user.literacy_level}` : 'Pending'} 
                                 size="small"
                                 color={user.assessment_taken ? 'success' : 'warning'}
                               />
@@ -267,8 +261,48 @@ export default function AdminDashboard() {
               </Card>
             </Grid>
 
+            {/* Lessons by Module */}
+            <Grid item xs={12} md={3}>
+              <Card sx={{ backgroundColor: '#4a4a4a' }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom sx={{ color: '#FF6B35' }}>
+                    Lessons by Module
+                  </Typography>
+                  {stats?.modules && stats.modules.length > 0 ? (
+                    stats.modules.map((module: any) => {
+                      const count = stats?.lessons.filter(l => l.module_id === module.module_id).length || 0;
+                      return (
+                        <Box key={module.module_id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                          <Typography sx={{ fontSize: '0.875rem' }}>{module.name}</Typography>
+                          <Box
+                            sx={{
+                              backgroundColor: '#4CAF50',
+                              color: 'white',
+                              px: 1.5,
+                              py: 0.5,
+                              borderRadius: 1,
+                              fontSize: '0.875rem',
+                              fontWeight: 'bold',
+                              minWidth: '24px',
+                              textAlign: 'center'
+                            }}
+                          >
+                            {count}
+                          </Box>
+                        </Box>
+                      );
+                    })
+                  ) : (
+                    <Typography sx={{ color: '#E0E0E0', fontStyle: 'italic' }}>
+                      No modules found
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+
             {/* Lessons by Level */}
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={3}>
               <Card sx={{ backgroundColor: '#4a4a4a' }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom sx={{ color: '#FF6B35' }}>
@@ -279,7 +313,21 @@ export default function AdminDashboard() {
                     return (
                       <Box key={level} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                         <Typography>Level {level}</Typography>
-                        <Chip label={count} size="small" />
+                        <Box
+                          sx={{
+                            backgroundColor: '#FF6B35',
+                            color: 'white',
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: 1,
+                            fontSize: '0.875rem',
+                            fontWeight: 'bold',
+                            minWidth: '24px',
+                            textAlign: 'center'
+                          }}
+                        >
+                          {count}
+                        </Box>
                       </Box>
                     );
                   })}

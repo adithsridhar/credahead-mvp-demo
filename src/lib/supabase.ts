@@ -52,6 +52,14 @@ export const supabaseAdmin = typeof window === 'undefined' ? createClient(
        updated_at: string;
      }
 
+     export interface Module {
+       id: number;
+       module_id: string;
+       name: string;
+       created_at: string;
+       updated_at: string;
+     }
+
      export interface Lesson {
        id: number;
        lesson_id: string;
@@ -63,6 +71,7 @@ export const supabaseAdmin = typeof window === 'undefined' ? createClient(
        prerequisites?: string[];
        completion_rate: number;
        avg_quiz_score: number;
+       module_id?: string;
        created_at: string;
      }
 
