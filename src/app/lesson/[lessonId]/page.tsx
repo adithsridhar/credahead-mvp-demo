@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Container, Box, Typography, CircularProgress, Button, Card, CardContent, LinearProgress } from '@mui/material';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigationGuard } from '@/contexts/NavigationGuardContext';
 import { supabase, type Question, type Lesson } from '@/lib/supabase';
 import QuestionCard from '@/components/QuestionCard';
 import FeedbackPopup from '@/components/FeedbackPopup';
@@ -38,6 +39,7 @@ export default function LessonQuizPage() {
   const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { setQuizActive } = useNavigationGuard();
   const lessonId = params.lessonId as string;
 
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -142,6 +144,7 @@ export default function LessonQuizPage() {
       setCurrentDifficulty(min); // Start at lesson minimum
       
       // Load first question
+      setQuizActive(true);
       await selectNextQuestion(min, questions, []);
     } catch (error) {
       console.error('Error initializing quiz:', error);
@@ -300,6 +303,7 @@ export default function LessonQuizPage() {
           });
       }
       
+      setQuizActive(false);
       setShowResults(true);
     } catch (error) {
       console.error('Error completing quiz:', error);

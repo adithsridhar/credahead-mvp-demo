@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigationGuard } from '@/contexts/NavigationGuardContext';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 
 export default function Navigation() {
   const { user, appUser, signOut } = useAuth();
+  const { requestNavigation } = useNavigationGuard();
 
   const handleSignOut = async () => {
     try {
@@ -19,9 +21,16 @@ export default function Navigation() {
     <AppBar position="static" sx={{ backgroundColor: '#2d2d2d' }}>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <span 
+            onClick={() => requestNavigation('/pathway')}
+            style={{ 
+              textDecoration: 'none', 
+              color: 'inherit', 
+              cursor: 'pointer' 
+            }}
+          >
             CredAhead
-          </Link>
+          </span>
         </Typography>
 
         {appUser && (

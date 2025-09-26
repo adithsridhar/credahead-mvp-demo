@@ -26,7 +26,7 @@ export default function SignInPage() {
       setLoading(true);
       setError('');
       await signIn(email, password);
-      router.push('/');
+      router.push('/pathway');
     } catch (error: any) {
       setError(error.message || 'Failed to sign in');
     } finally {

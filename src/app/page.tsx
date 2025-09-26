@@ -2,25 +2,53 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogTitle, TextField, Button, Alert, Box } from '@mui/material';
 
 export default function HomePage() {
-  const { user, appUser, loading } = useAuth();
+  const { user, appUser, loading, signIn } = useAuth();
   const router = useRouter();
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminError, setAdminError] = useState('');
 
-  // Redirect authenticated users based on assessment status
+  // Redirect authenticated users to pathway (they can access assessment from there if needed)
   useEffect(() => {
     if (!loading && user && appUser) {
-      if (!appUser.assessment_taken) {
-        // User hasn't taken assessment, redirect to assessment
-        router.push('/assessment');
-      } else {
-        // User has taken assessment, redirect to pathway
-        router.push('/pathway');
-      }
+      router.push('/pathway');
     }
   }, [user, appUser, loading, router]);
+
+  // Handle admin authentication
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!adminPassword) {
+      setAdminError('Please enter the admin password');
+      return;
+    }
+
+    try {
+      setAdminLoading(true);
+      setAdminError('');
+      
+      // Simple password check
+      if (adminPassword === 'admin') {
+        // Close modal and redirect to admin dashboard
+        setShowAdminModal(false);
+        setAdminPassword('');
+        router.push('/admin');
+      } else {
+        setAdminError('Invalid admin password');
+      }
+    } catch (error: any) {
+      setAdminError('Authentication failed');
+    } finally {
+      setAdminLoading(false);
+    }
+  };
 
   // Show landing page only for unauthenticated users
   if (loading) {
@@ -73,25 +101,88 @@ export default function HomePage() {
           </Link>
           
           <div className="mt-8 pt-8 border-t border-gray-600">
-            <p className="text-gray-400 mb-4">Preview features:</p>
             <div className="space-y-2">
-              <Link
-                href="/assessment"
-                className="block bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg text-sm transition-colors"
-              >
-                Preview Assessment
-              </Link>
-              
-              <Link
-                href="/admin"
-                className="block bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg text-sm transition-colors"
+              <button
+                onClick={() => setShowAdminModal(true)}
+                className="block bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg text-sm transition-colors w-full text-left"
               >
                 Admin Dashboard
-              </Link>
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Admin Authentication Modal */}
+      <Dialog 
+        open={showAdminModal} 
+        onClose={() => {
+          setShowAdminModal(false);
+          setAdminError('');
+          setAdminPassword('');
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: '#FF6B35', fontWeight: 'bold' }}>
+          Admin Access Required
+        </DialogTitle>
+        <DialogContent>
+          {adminError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {adminError}
+            </Alert>
+          )}
+          
+          <Box component="form" onSubmit={handleAdminLogin} sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Admin Password"
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              autoFocus
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#666' },
+                  '&:hover fieldset': { borderColor: '#FF6B35' },
+                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' },
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#E0E0E0',
+                  '&.Mui-focused': { color: '#FF6B35' },
+                },
+              }}
+            />
+            <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+              <Button
+                onClick={() => {
+                  setShowAdminModal(false);
+                  setAdminError('');
+                  setAdminPassword('');
+                }}
+                sx={{ color: '#666' }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={adminLoading}
+                sx={{
+                  backgroundColor: '#FF6B35',
+                  '&:hover': { backgroundColor: '#e55a2b' },
+                  flex: 1,
+                }}
+              >
+                {adminLoading ? 'Authenticating...' : 'Access Dashboard'}
+              </Button>
+            </Box>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

@@ -7,17 +7,20 @@ import { Container, Box, Typography, LinearProgress, CircularProgress } from '@m
 import { userHistoryCache } from '@/lib/cache/userHistoryCache';
 import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigationGuard } from '@/contexts/NavigationGuardContext';
 import { selectNextQuestion, recordQuestionAnswer } from '@/lib/questionSelection';
 import { calculateLiteracyLevel, adjustDifficulty, type AssessmentResponse } from '@/lib/utils/scoring';
 import { supabase, type Question, type QuizSession } from '@/lib/supabase';
 import PreAssessmentScreen from './pre-assessment';
 import QuestionCard from '@/components/QuestionCard';
+import AssessmentResults from '@/components/AssessmentResults';
 
 const TOTAL_QUESTIONS = 24;
 
 export default function AssessmentPage() {
   const router = useRouter();
   const { user, appUser, refreshAppUser } = useAuth();
+  const { setQuizActive } = useNavigationGuard();
   const [showPreAssessment, setShowPreAssessment] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -27,6 +30,12 @@ export default function AssessmentPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [assessmentResults, setAssessmentResults] = useState<{
+    score: number;
+    correctAnswers: number;
+    totalQuestions: number;
+  } | null>(null);
 
   // 5-minute inactivity timeout
   useInactivityTimeout(5 * 60 * 1000, async () => {
@@ -35,6 +44,7 @@ export default function AssessmentPage() {
         .from('quiz_sessions')
         .update({ status: 'abandoned' })
         .eq('id', sessionId);
+      setQuizActive(false);
       router.push('/');
     }
   });
@@ -81,6 +91,7 @@ export default function AssessmentPage() {
 
       setSessionId(newSession.id);
       setShowPreAssessment(false);
+      setQuizActive(true);
       await loadNextQuestion();
     } catch (error) {
       console.error('Error starting assessment:', error);
@@ -182,6 +193,7 @@ export default function AssessmentPage() {
       
       const finalResponses = responses.length > 0 ? responses : [];
       const literacyLevel = calculateLiteracyLevel(finalResponses);
+      const correctAnswers = finalResponses.filter(r => r.isCorrect).length;
 
       // Update user's literacy level
       await supabase
@@ -205,13 +217,24 @@ export default function AssessmentPage() {
       // Refresh user data
       await refreshAppUser();
 
-      // Navigate to results or pathway
-      router.push('/pathway');
+      // Set results and show results screen
+      setAssessmentResults({
+        score: literacyLevel,
+        correctAnswers: correctAnswers,
+        totalQuestions: TOTAL_QUESTIONS,
+      });
+      setQuizActive(false);
+      setShowResults(true);
     } catch (error) {
       console.error('Error completing assessment:', error);
     } finally {
       setIsCompleting(false);
     }
+  };
+
+  const handleContinueFromResults = async () => {
+    // Refresh user data one more time before navigating
+    await refreshAppUser();
   };
 
   if (!user) {
@@ -236,6 +259,17 @@ export default function AssessmentPage() {
           Processing your results...
         </Typography>
       </Container>
+    );
+  }
+
+  if (showResults && assessmentResults) {
+    return (
+      <AssessmentResults
+        score={assessmentResults.score}
+        correctAnswers={assessmentResults.correctAnswers}
+        totalQuestions={assessmentResults.totalQuestions}
+        onContinue={handleContinueFromResults}
+      />
     );
   }
 

@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { NavigationGuardProvider } from '@/contexts/NavigationGuardContext';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useState } from 'react';
@@ -70,7 +71,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
-          {children}
+          <NavigationGuardProvider>
+            {children}
+          </NavigationGuardProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
