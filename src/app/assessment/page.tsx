@@ -35,7 +35,9 @@ export default function AssessmentPage() {
     score: number;
     correctAnswers: number;
     totalQuestions: number;
+    duration: number;
   } | null>(null);
+  const [startTime, setStartTime] = useState<number | null>(null);
 
   // 5-minute inactivity timeout
   useInactivityTimeout(5 * 60 * 1000, async () => {
@@ -92,6 +94,7 @@ export default function AssessmentPage() {
       setSessionId(newSession.id);
       setShowPreAssessment(false);
       setQuizActive(true);
+      setStartTime(Date.now());
       await loadNextQuestion();
     } catch (error) {
       console.error('Error starting assessment:', error);
@@ -194,6 +197,7 @@ export default function AssessmentPage() {
       const finalResponses = responses.length > 0 ? responses : [];
       const literacyLevel = calculateLiteracyLevel(finalResponses);
       const correctAnswers = finalResponses.filter(r => r.isCorrect).length;
+      const duration = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
 
       // Update user's literacy level
       await supabase
@@ -222,6 +226,7 @@ export default function AssessmentPage() {
         score: literacyLevel,
         correctAnswers: correctAnswers,
         totalQuestions: TOTAL_QUESTIONS,
+        duration: duration,
       });
       setQuizActive(false);
       setShowResults(true);
@@ -268,6 +273,8 @@ export default function AssessmentPage() {
         score={assessmentResults.score}
         correctAnswers={assessmentResults.correctAnswers}
         totalQuestions={assessmentResults.totalQuestions}
+        duration={assessmentResults.duration}
+        responses={responses}
         onContinue={handleContinueFromResults}
       />
     );

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Container, Paper, TextField, Button, Typography, Box, Alert } from '@mui/material';
+import { Container, Paper, TextField, Button, Typography, Box, Alert, Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function SignInPage() {
@@ -13,6 +13,10 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminError, setAdminError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +35,32 @@ export default function SignInPage() {
       setError(error.message || 'Failed to sign in');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!adminPassword) {
+      setAdminError('Please enter the admin password');
+      return;
+    }
+
+    try {
+      setAdminLoading(true);
+      setAdminError('');
+      
+      if (adminPassword === 'admin') {
+        setShowAdminModal(false);
+        setAdminPassword('');
+        router.push('/admin');
+      } else {
+        setAdminError('Invalid admin password');
+      }
+    } catch (error: any) {
+      setAdminError('Authentication failed');
+    } finally {
+      setAdminLoading(false);
     }
   };
 
@@ -147,8 +177,96 @@ export default function SignInPage() {
               Don't have an account? Sign Up
             </Link>
           </Box>
+          
+          <Box sx={{ mt: 3, pt: 3, borderTop: '1px solid #666', textAlign: 'center' }}>
+            <Button
+              onClick={() => setShowAdminModal(true)}
+              sx={{
+                color: '#999',
+                textTransform: 'none',
+                fontSize: '0.9rem',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#FF6B35'
+                }
+              }}
+            >
+              Admin Dashboard
+            </Button>
+          </Box>
         </Box>
       </Paper>
+
+      {/* Admin Authentication Modal */}
+      <Dialog 
+        open={showAdminModal} 
+        onClose={() => {
+          setShowAdminModal(false);
+          setAdminError('');
+          setAdminPassword('');
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: '#FF6B35', fontWeight: 'bold' }}>
+          Admin Access Required
+        </DialogTitle>
+        <DialogContent>
+          {adminError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {adminError}
+            </Alert>
+          )}
+          
+          <Box component="form" onSubmit={handleAdminLogin} sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Admin Password"
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              autoFocus
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#666' },
+                  '&:hover fieldset': { borderColor: '#FF6B35' },
+                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' },
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#E0E0E0',
+                  '&.Mui-focused': { color: '#FF6B35' },
+                },
+              }}
+            />
+            <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+              <Button
+                onClick={() => {
+                  setShowAdminModal(false);
+                  setAdminError('');
+                  setAdminPassword('');
+                }}
+                sx={{ color: '#666' }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={adminLoading}
+                sx={{
+                  backgroundColor: '#FF6B35',
+                  '&:hover': { backgroundColor: '#e55a2b' },
+                  flex: 1,
+                }}
+              >
+                {adminLoading ? 'Authenticating...' : 'Access Dashboard'}
+              </Button>
+            </Box>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Container>
   );
 }

@@ -2,11 +2,16 @@
 
 import { Container, Typography, Box, Button, Card, CardContent, Grid } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { calculateModulePerformance, formatDuration, type ModulePerformance } from '@/lib/utils/modulePerformance';
+import type { AssessmentResponse } from '@/lib/utils/scoring';
 
 interface AssessmentResultsProps {
   score: number;
   correctAnswers: number;
   totalQuestions: number;
+  duration: number;
+  responses: AssessmentResponse[];
   onContinue: () => void;
 }
 
@@ -14,240 +19,224 @@ export default function AssessmentResults({
   score, 
   correctAnswers, 
   totalQuestions = 24,
+  duration,
+  responses,
   onContinue 
 }: AssessmentResultsProps) {
   const router = useRouter();
+  const [modulePerformance, setModulePerformance] = useState<ModulePerformance[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Calculate accuracy percentage
   const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
   
-  // Determine literacy level based on score
-  const getLiteracyLevel = (score: number): string => {
-    if (score >= 1 && score <= 3) return 'Basic';
-    if (score >= 4 && score <= 7) return 'Intermediate';
-    if (score >= 8 && score <= 10) return 'Advanced';
-    return 'Basic';
-  };
-  
-  const literacyLevel = getLiteracyLevel(score);
+  // Load module performance data
+  useEffect(() => {
+    const loadModulePerformance = async () => {
+      try {
+        const performance = await calculateModulePerformance(responses);
+        setModulePerformance(performance);
+      } catch (error) {
+        console.error('Error calculating module performance:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadModulePerformance();
+  }, [responses]);
 
   const handleContinue = () => {
     onContinue();
     router.push('/pathway');
   };
 
+  const getScoreColor = (accuracy: number | null): string => {
+    if (accuracy === null) return '#9CA3AF'; // Grey for NA
+    if (accuracy >= 75) return '#4CAF50'; // Green for high
+    if (accuracy >= 50) return '#FF9800'; // Orange for medium
+    return '#F44336'; // Red for low
+  };
+
   return (
-    <Container maxWidth="md" sx={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      py: 4 
-    }}>
-      {/* Congratulations Header */}
-      <Typography 
-        variant="h2" 
-        sx={{ 
-          color: '#FF6B35', 
-          fontWeight: 'bold',
-          mb: 3,
-          textAlign: 'center',
-          fontSize: { xs: '2.5rem', md: '3.5rem' }
-        }}
-      >
-        Congratulations!!
-      </Typography>
-
-      {/* Subheader */}
-      <Typography 
-        variant="h5" 
-        sx={{ 
-          color: '#E0E0E0',
-          mb: 4,
-          textAlign: 'center',
-          fontWeight: 'normal'
-        }}
-      >
-        Your Financial Literacy Score is
-      </Typography>
-
-      {/* Main Score Box */}
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Card sx={{ 
-        backgroundColor: '#4a4a4a',
-        borderRadius: 3,
+        backgroundColor: '#4a4a4a', 
+        borderRadius: 2, 
         mb: 4,
-        minWidth: { xs: '280px', sm: '350px' },
-        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+        p: 4
       }}>
-        <CardContent sx={{ 
-          textAlign: 'center',
-          py: 4,
-          px: 3
-        }}>
-          <Typography 
-            variant="h1" 
-            sx={{ 
-              color: '#FF6B35',
-              fontWeight: 'bold',
-              mb: 2,
-              fontSize: { xs: '4rem', md: '5rem' },
-              lineHeight: 1
-            }}
-          >
-            {score}
-          </Typography>
-          <Typography 
-            variant="h4" 
-            sx={{ 
-              color: '#E0E0E0',
-              fontWeight: 'medium',
-              fontSize: { xs: '1.5rem', md: '2rem' }
-            }}
-          >
-            {literacyLevel}
-          </Typography>
-        </CardContent>
-      </Card>
+        {/* Header */}
+        <Typography 
+          variant="h3" 
+          sx={{ 
+            color: '#FF6B35', 
+            fontWeight: 'bold', 
+            textAlign: 'center',
+            mb: 2 
+          }}
+        >
+          Assessment Results
+        </Typography>
+        
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            color: '#4CAF50', 
+            textAlign: 'center',
+            mb: 4 
+          }}
+        >
+          ✅ Assessment Completed!
+        </Typography>
 
-      {/* Stats Row */}
-      <Grid container spacing={2} sx={{ mb: 4, maxWidth: '600px' }}>
-        {/* Questions Correct */}
-        <Grid item xs={4}>
-          <Card sx={{ backgroundColor: '#4a4a4a', borderRadius: 2 }}>
-            <CardContent sx={{ textAlign: 'center', py: 2 }}>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: '#E0E0E0',
-                  mb: 1,
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
-                }}
-              >
-                Questions
+        {/* Top Row: Literacy Level + Module Performance */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {/* Literacy Level Box */}
+          <Grid item xs={12} md={6}>
+            <Box sx={{ 
+              backgroundColor: '#5a5a5a', 
+              p: 3, 
+              borderRadius: 2, 
+              textAlign: 'center',
+              height: '100%'
+            }}>
+              <Typography variant="h6" sx={{ color: '#FF6B35', mb: 2 }}>
+                Your Literacy Level
               </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: '#E0E0E0',
-                  mb: 2,
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
-                }}
-              >
-                Correct
+              <Typography variant="h1" sx={{ 
+                color: '#4CAF50', 
+                fontWeight: 'bold',
+                fontSize: '4rem'
+              }}>
+                {score}
               </Typography>
-              <Typography 
-                variant="h4" 
-                sx={{ 
-                  color: '#FF6B35',
-                  fontWeight: 'bold',
-                  fontSize: { xs: '1.5rem', sm: '2rem' }
-                }}
-              >
-                {correctAnswers}
+            </Box>
+          </Grid>
+
+          {/* Module Performance Box */}
+          <Grid item xs={12} md={6}>
+            <Box sx={{ 
+              backgroundColor: '#5a5a5a', 
+              p: 3, 
+              borderRadius: 2,
+              height: '100%'
+            }}>
+              <Typography variant="h6" sx={{ color: '#FF6B35', mb: 2, textAlign: 'center' }}>
+                Performance by Module
               </Typography>
-            </CardContent>
-          </Card>
+              {isLoading ? (
+                <Box sx={{ textAlign: 'center', py: 2 }}>
+                  <Typography sx={{ color: '#E0E0E0' }}>Loading...</Typography>
+                </Box>
+              ) : (
+                <Grid container spacing={1}>
+                  {modulePerformance.map((module) => (
+                    <Grid item xs={3} key={module.moduleId}>
+                      <Box sx={{ 
+                        textAlign: 'center',
+                        p: 1,
+                        backgroundColor: '#4a4a4a',
+                        borderRadius: 1
+                      }}>
+                        <Typography variant="caption" sx={{ 
+                          color: '#E0E0E0',
+                          display: 'block',
+                          mb: 0.5,
+                          fontSize: '0.7rem'
+                        }}>
+                          {module.moduleName}
+                        </Typography>
+                        <Typography sx={{ 
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                          color: getScoreColor(module.accuracy)
+                        }}>
+                          {module.accuracy === null ? 'NA' : `${module.accuracy}%`}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+            </Box>
+          </Grid>
         </Grid>
 
-        {/* Total Questions */}
-        <Grid item xs={4}>
-          <Card sx={{ backgroundColor: '#4a4a4a', borderRadius: 2 }}>
-            <CardContent sx={{ textAlign: 'center', py: 2 }}>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: '#E0E0E0',
-                  mb: 1,
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
-                }}
-              >
-                Total
+        {/* Bottom Row: Statistics */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {/* Questions Correct */}
+          <Grid item xs={12} md={4}>
+            <Box sx={{ 
+              backgroundColor: '#5a5a5a', 
+              p: 3, 
+              borderRadius: 2, 
+              textAlign: 'center' 
+            }}>
+              <Typography variant="body1" sx={{ color: '#E0E0E0', mb: 1 }}>
+                Questions Correct
               </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: '#E0E0E0',
-                  mb: 2,
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
-                }}
-              >
-                Questions
+              <Typography variant="h3" sx={{ color: '#4CAF50', fontWeight: 'bold' }}>
+                {correctAnswers}/24
               </Typography>
-              <Typography 
-                variant="h4" 
-                sx={{ 
-                  color: '#FF6B35',
-                  fontWeight: 'bold',
-                  fontSize: { xs: '1.5rem', sm: '2rem' }
-                }}
-              >
-                {totalQuestions}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+            </Box>
+          </Grid>
 
-        {/* Accuracy */}
-        <Grid item xs={4}>
-          <Card sx={{ backgroundColor: '#4a4a4a', borderRadius: 2 }}>
-            <CardContent sx={{ textAlign: 'center', py: 2 }}>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: '#E0E0E0',
-                  mb: 1,
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
-                }}
-              >
+          {/* Accuracy */}
+          <Grid item xs={12} md={4}>
+            <Box sx={{ 
+              backgroundColor: '#5a5a5a', 
+              p: 3, 
+              borderRadius: 2, 
+              textAlign: 'center' 
+            }}>
+              <Typography variant="body1" sx={{ color: '#E0E0E0', mb: 1 }}>
                 Accuracy
               </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: '#E0E0E0',
-                  mb: 2,
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                  visibility: 'hidden'
-                }}
-              >
-                &nbsp;
-              </Typography>
-              <Typography 
-                variant="h4" 
-                sx={{ 
-                  color: '#FF6B35',
-                  fontWeight: 'bold',
-                  fontSize: { xs: '1.5rem', sm: '2rem' }
-                }}
-              >
+              <Typography variant="h3" sx={{ color: '#4CAF50', fontWeight: 'bold' }}>
                 {accuracy}%
               </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+            </Box>
+          </Grid>
 
-      {/* Continue Button */}
-      <Button
-        variant="contained"
-        onClick={handleContinue}
-        sx={{
-          backgroundColor: '#FF6B35',
-          '&:hover': {
-            backgroundColor: '#e55a2b',
-          },
-          px: 6,
-          py: 2,
-          fontSize: '1.1rem',
-          fontWeight: 'bold',
-          borderRadius: 2,
-          textTransform: 'none',
-          minWidth: '200px'
-        }}
-      >
-        Continue
-      </Button>
+          {/* Time Taken */}
+          <Grid item xs={12} md={4}>
+            <Box sx={{ 
+              backgroundColor: '#5a5a5a', 
+              p: 3, 
+              borderRadius: 2, 
+              textAlign: 'center' 
+            }}>
+              <Typography variant="body1" sx={{ color: '#E0E0E0', mb: 1 }}>
+                Time Taken
+              </Typography>
+              <Typography variant="h3" sx={{ color: '#4CAF50', fontWeight: 'bold' }}>
+                {formatDuration(duration)}
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+
+        {/* Continue Button */}
+        <Box sx={{ textAlign: 'center' }}>
+          <Button
+            variant="contained"
+            onClick={handleContinue}
+            sx={{
+              backgroundColor: '#FF6B35',
+              '&:hover': {
+                backgroundColor: '#e55a2b',
+              },
+              px: 6,
+              py: 2,
+              fontSize: '1.2rem',
+              fontWeight: 'bold'
+            }}
+          >
+            Continue to Learning Pathway
+          </Button>
+        </Box>
+      </Card>
     </Container>
   );
 }
