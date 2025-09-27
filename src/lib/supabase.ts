@@ -48,6 +48,10 @@ export const supabaseAdmin = typeof window === 'undefined' ? createClient(
        literacy_level: number;
        assessment_taken: boolean;
        current_pathway_level: number;
+       age_range?: string;
+       location?: string;
+       occupation?: string;
+       survey_completed: boolean;
        created_at: string;
        updated_at: string;
      }

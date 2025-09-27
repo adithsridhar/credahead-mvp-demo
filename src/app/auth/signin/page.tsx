@@ -30,7 +30,9 @@ export default function SignInPage() {
       setLoading(true);
       setError('');
       await signIn(email, password);
-      router.push('/pathway');
+      
+      // Let the main page handle redirect logic based on user completion status
+      router.push('/');
     } catch (error: any) {
       setError(error.message || 'Failed to sign in');
     } finally {

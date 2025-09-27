@@ -14,10 +14,21 @@ export default function HomePage() {
   const [adminLoading, setAdminLoading] = useState(false);
   const [adminError, setAdminError] = useState('');
 
-  // Redirect authenticated users to pathway (they can access assessment from there if needed)
+  // Redirect authenticated users based on their completion status
   useEffect(() => {
     if (!loading && user && appUser) {
-      router.push('/pathway');
+      // If user hasn't completed demographic survey, redirect to survey
+      if (!appUser.survey_completed) {
+        router.push('/auth/demographic-survey');
+      }
+      // If user completed survey but not assessment, redirect to assessment
+      else if (!appUser.assessment_taken) {
+        router.push('/assessment');
+      }
+      // Otherwise redirect to pathway
+      else {
+        router.push('/pathway');
+      }
     }
   }, [user, appUser, loading, router]);
 
