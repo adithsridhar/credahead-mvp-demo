@@ -9,7 +9,7 @@ import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigationGuard } from '@/contexts/NavigationGuardContext';
 import { selectNextQuestion, recordQuestionAnswer } from '@/lib/questionSelection';
-import { calculateLiteracyLevel, adjustDifficulty, type AssessmentResponse } from '@/lib/utils/scoring';
+import { calculateLiteracyLevel, adjustDifficulty, storeUserScore, type AssessmentResponse } from '@/lib/utils/scoring';
 import { supabase, type Question, type QuizSession } from '@/lib/supabase';
 import PreAssessmentScreen from './pre-assessment';
 import QuestionCard from '@/components/QuestionCard';
@@ -208,6 +208,14 @@ export default function AssessmentPage() {
           current_pathway_level: Math.min(literacyLevel + 1, 10),
         })
         .eq('id', user.id);
+
+      // Store user's score in scores table for percentile calculation
+      try {
+        await storeUserScore(user.id, literacyLevel);
+      } catch (error) {
+        console.error('Error storing user score for percentile calculation:', error);
+        // Don't block the assessment completion if score storage fails
+      }
 
       // Complete session
       await supabase

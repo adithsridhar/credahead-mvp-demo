@@ -4,7 +4,7 @@ import { Container, Typography, Box, Button, Card, CardContent, Grid } from '@mu
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { calculateModulePerformance, formatDuration, type ModulePerformance } from '@/lib/utils/modulePerformance';
-import type { AssessmentResponse } from '@/lib/utils/scoring';
+import { calculatePercentile, type AssessmentResponse } from '@/lib/utils/scoring';
 
 interface AssessmentResultsProps {
   score: number;
@@ -25,26 +25,32 @@ export default function AssessmentResults({
 }: AssessmentResultsProps) {
   const router = useRouter();
   const [modulePerformance, setModulePerformance] = useState<ModulePerformance[]>([]);
+  const [percentile, setPercentile] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   // Calculate accuracy percentage
   const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
   
-  // Load module performance data
+  // Load module performance data and calculate percentile
   useEffect(() => {
-    const loadModulePerformance = async () => {
+    const loadData = async () => {
       try {
+        // Load module performance
         const performance = await calculateModulePerformance(responses);
         setModulePerformance(performance);
+        
+        // Calculate percentile for user's score
+        const userPercentile = await calculatePercentile(score);
+        setPercentile(userPercentile);
       } catch (error) {
-        console.error('Error calculating module performance:', error);
+        console.error('Error loading assessment data:', error);
       } finally {
         setIsLoading(false);
       }
     };
     
-    loadModulePerformance();
-  }, [responses]);
+    loadData();
+  }, [responses, score]);
 
   const handleContinue = () => {
     onContinue();
@@ -199,20 +205,35 @@ export default function AssessmentResults({
             </Box>
           </Grid>
 
-          {/* Time Taken */}
+          {/* Percentile */}
           <Grid item xs={12} md={4}>
             <Box sx={{ 
               backgroundColor: '#5a5a5a', 
               p: 3, 
               borderRadius: 2, 
-              textAlign: 'center' 
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              minHeight: '120px'
             }}>
-              <Typography variant="body1" sx={{ color: '#E0E0E0', mb: 1 }}>
-                Time Taken
-              </Typography>
-              <Typography variant="h3" sx={{ color: '#4CAF50', fontWeight: 'bold' }}>
-                {formatDuration(duration)}
-              </Typography>
+              {percentile !== null ? (
+                <Typography variant="body1" sx={{ color: '#E0E0E0', lineHeight: 1.4 }}>
+                  You were better than{' '}
+                  <Typography component="span" sx={{ 
+                    color: '#FF6B35', 
+                    fontWeight: 'bold',
+                    fontSize: '1.5em'
+                  }}>
+                    {percentile}%
+                  </Typography>
+                  {' '}of users
+                </Typography>
+              ) : (
+                <Typography variant="body1" sx={{ color: '#9CA3AF' }}>
+                  Calculating percentile...
+                </Typography>
+              )}
             </Box>
           </Grid>
         </Grid>

@@ -125,3 +125,11 @@ export const supabaseAdmin = typeof window === 'undefined' ? createClient(
        completed_at?: string;
        last_activity_at: string;
      }
+
+     export interface Score {
+       id: number;
+       score: number;
+       is_dummy: boolean;
+       created_at: string;
+       user_id?: string;
+     }

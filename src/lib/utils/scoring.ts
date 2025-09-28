@@ -69,3 +69,79 @@ export function adjustDifficulty(currentDifficulty: number, isCorrect: boolean):
     return Math.max(1, currentDifficulty - 1.0);
   }
 }
+
+export interface ScoreRecord {
+  score: number;
+  is_dummy: boolean;
+  created_at: string;
+  user_id?: string;
+}
+
+export async function calculatePercentile(userScore: number): Promise<number> {
+  const { createClient } = await import('@supabase/supabase-js');
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  
+  try {
+    // Get all scores from database (both dummy and real)
+    const { data: allScores, error } = await supabase
+      .from('scores')
+      .select('score')
+      .order('score', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching scores for percentile calculation:', error);
+      return 50; // Default to 50th percentile if error
+    }
+    
+    if (!allScores || allScores.length === 0) {
+      return 50; // Default if no data
+    }
+    
+    const scores = allScores.map(record => record.score);
+    const totalCount = scores.length;
+    
+    // Count scores below user's score
+    const countBelow = scores.filter(score => score < userScore).length;
+    
+    // Count exact ties
+    const countTies = scores.filter(score => score === userScore).length;
+    
+    // Calculate percentile using the formula: (count below + 0.5 * count of ties) / total * 100
+    const percentile = ((countBelow + 0.5 * countTies) / totalCount) * 100;
+    
+    // Round to nearest integer
+    return Math.round(percentile);
+  } catch (error) {
+    console.error('Error in percentile calculation:', error);
+    return 50; // Default to 50th percentile if error
+  }
+}
+
+export async function storeUserScore(userId: string, score: number): Promise<void> {
+  const { createClient } = await import('@supabase/supabase-js');
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  
+  try {
+    const { error } = await supabase
+      .from('scores')
+      .insert({
+        score: score,
+        is_dummy: false,
+        user_id: userId
+      });
+    
+    if (error) {
+      console.error('Error storing user score:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error in storeUserScore:', error);
+    throw error;
+  }
+}
