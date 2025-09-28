@@ -59,9 +59,6 @@ export default function Navigation() {
               <Button color="inherit" component={Link} href="/auth/signin">
                 Sign In
               </Button>
-              <Button color="inherit" component={Link} href="/auth/signup">
-                Sign Up
-              </Button>
             </>
           )}
         </Box>
