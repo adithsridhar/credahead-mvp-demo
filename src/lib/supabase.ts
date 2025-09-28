@@ -3,22 +3,63 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Validate environment variables
-if (!supabaseUrl) {
-  throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_URL');
+// Enhanced environment validation with security checks
+function validateEnvironmentVariables() {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Check for missing variables
+  if (!supabaseUrl) {
+    errors.push('NEXT_PUBLIC_SUPABASE_URL is missing');
+  }
+  if (!supabaseAnonKey) {
+    errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is missing');
+  }
+
+  // Check for placeholder values (security check)
+  if (supabaseUrl && supabaseUrl.includes('your-project-ref')) {
+    errors.push('NEXT_PUBLIC_SUPABASE_URL appears to be a placeholder value. Please set your actual Supabase URL.');
+  }
+  if (supabaseAnonKey && supabaseAnonKey.includes('your_supabase_anon_key_here')) {
+    errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY appears to be a placeholder value. Please set your actual Supabase anon key.');
+  }
+
+  // Check for valid Supabase URL format
+  if (supabaseUrl && !supabaseUrl.includes('supabase.co')) {
+    warnings.push(`Supabase URL format may be invalid: ${supabaseUrl}`);
+  }
+
+  // Check for development vs production keys
+  if (supabaseAnonKey && supabaseAnonKey.startsWith('eyJ') && supabaseAnonKey.length < 100) {
+    warnings.push('Supabase anon key appears to be very short. Please verify it is correct.');
+  }
+
+  // Report errors and warnings
+  if (errors.length > 0) {
+    console.error('❌ Supabase Configuration Errors:');
+    errors.forEach(error => console.error(`  - ${error}`));
+    console.error('\n🔧 To fix this:');
+    console.error('  1. Copy .env.example to .env.local');
+    console.error('  2. Replace placeholder values with your actual Supabase credentials');
+    console.error('  3. Get your credentials from: https://app.supabase.com/project/[your-project]/settings/api');
+    throw new Error('Supabase configuration is invalid. Check the console for details.');
+  }
+
+  if (warnings.length > 0) {
+    console.warn('⚠️ Supabase Configuration Warnings:');
+    warnings.forEach(warning => console.warn(`  - ${warning}`));
+  }
+
+  // Success message
+  console.log('✅ Supabase configuration validated successfully');
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`📍 Connecting to: ${supabaseUrl}`);
+    console.log(`🔑 Using anon key: ${supabaseAnonKey.substring(0, 20)}...`);
+  }
 }
 
-if (!supabaseAnonKey) {
-  throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY');
-}
-
-if (!supabaseUrl.includes('supabase.co')) {
-  console.warn('Warning: Supabase URL does not appear to be valid:', supabaseUrl);
-}
-
-console.log('Supabase configuration:');
-console.log('URL:', supabaseUrl);
-console.log('Key length:', supabaseAnonKey?.length || 0);
+// Validate environment on module load
+validateEnvironmentVariables();
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -29,16 +70,36 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Service role client for admin operations (server-side only)
-export const supabaseAdmin = typeof window === 'undefined' ? createClient(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
+function createAdminClient() {
+  if (typeof window !== 'undefined') {
+    return null; // Client-side, no admin client
+  }
+
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  // Validate service role key
+  if (!serviceRoleKey) {
+    console.error('❌ SUPABASE_SERVICE_ROLE_KEY is missing for admin operations');
+    return null;
+  }
+  
+  if (serviceRoleKey.includes('your_supabase_service_role_key_here')) {
+    console.error('❌ SUPABASE_SERVICE_ROLE_KEY appears to be a placeholder value');
+    console.error('🔧 Please set your actual Supabase service role key in .env.local');
+    return null;
+  }
+
+  console.log('✅ Supabase admin client configured for server-side operations');
+  
+  return createClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
     }
-  }
-) : null;
+  });
+}
+
+export const supabaseAdmin = createAdminClient();
 
      // Database types
      export interface User {
