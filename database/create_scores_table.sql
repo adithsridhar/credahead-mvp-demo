@@ -17,13 +17,18 @@ CREATE INDEX IF NOT EXISTS idx_scores_user_id ON scores(user_id);
 -- Row Level Security
 ALTER TABLE scores ENABLE ROW LEVEL SECURITY;
 
--- Allow public read access for percentile calculations (dummy data is anonymous)
-CREATE POLICY "Anyone can read scores for percentile calculation" ON scores
-  FOR SELECT USING (true);
+-- SECURE POLICIES: Users can only see their own scores
+-- Users can view only their own scores (not others')
+CREATE POLICY "Users can view own scores" ON scores
+  FOR SELECT USING (auth.uid() = user_id);
 
 -- Users can insert their own scores
 CREATE POLICY "Users can insert own scores" ON scores
   FOR INSERT WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+-- Allow reading of dummy data (anonymous, no user_id) for transparency
+CREATE POLICY "Anyone can read anonymous dummy data" ON scores
+  FOR SELECT USING (user_id IS NULL AND is_dummy = true);
 
 -- Insert 1000 dummy records with specified distribution
 -- Scores 1.0-2.9: 400 records (40%)

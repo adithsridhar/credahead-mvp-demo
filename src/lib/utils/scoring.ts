@@ -78,42 +78,29 @@ export interface ScoreRecord {
 }
 
 export async function calculatePercentile(userScore: number): Promise<number> {
-  const { createClient } = await import('@supabase/supabase-js');
-  
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-  
   try {
-    // Get all scores from database (both dummy and real)
-    const { data: allScores, error } = await supabase
-      .from('scores')
-      .select('score')
-      .order('score', { ascending: true });
+    // Use secure server-side API for percentile calculation
+    const response = await fetch('/api/scores/percentile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ score: userScore }),
+    });
     
-    if (error) {
-      console.error('Error fetching scores for percentile calculation:', error);
+    if (!response.ok) {
+      console.error('Error calling percentile API:', response.status, response.statusText);
       return 50; // Default to 50th percentile if error
     }
     
-    if (!allScores || allScores.length === 0) {
-      return 50; // Default if no data
+    const data = await response.json();
+    
+    if (data.error) {
+      console.error('Error in percentile calculation:', data.error);
+      return 50; // Default to 50th percentile if error
     }
     
-    const scores = allScores.map(record => record.score);
-    const totalCount = scores.length;
-    
-    // Count scores below user's score
-    const countBelow = scores.filter(score => score < userScore).length;
-    
-    // Count exact ties
-    const countTies = scores.filter(score => score === userScore).length;
-    
-    // Calculate percentile using the formula: (count below + 0.5 * count of ties) / total * 100
-    const percentile = ((countBelow + 0.5 * countTies) / totalCount) * 100;
-    
-    // Round to nearest integer
-    return Math.round(percentile);
+    return data.percentile || 50;
   } catch (error) {
     console.error('Error in percentile calculation:', error);
     return 50; // Default to 50th percentile if error
