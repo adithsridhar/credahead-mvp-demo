@@ -180,11 +180,12 @@ export default function PathwayContainer({
           py: 3,
           px: 2,
         }}>
-          <Typography variant="h3" sx={{ 
+          <Typography variant="h4" sx={{ 
             textAlign: 'center',
             color: '#FF6B35',
             fontWeight: 'bold',
-            mb: 1
+            mb: 1,
+            fontSize: { xs: '1.25rem', sm: '1.375rem', md: '1.75rem' }
           }}>
             Learning Pathway
           </Typography>

@@ -74,23 +74,25 @@ export default function AssessmentResults({
       }}>
         {/* Header */}
         <Typography 
-          variant="h3" 
+          variant="h4" 
           sx={{ 
             color: '#FF6B35', 
             fontWeight: 'bold', 
             textAlign: 'center',
-            mb: 2 
+            mb: 2,
+            fontSize: { xs: '1.25rem', sm: '1.375rem', md: '1.75rem' }
           }}
         >
           Assessment Results
         </Typography>
         
         <Typography 
-          variant="h4" 
+          variant="h5" 
           sx={{ 
             color: '#4CAF50', 
             textAlign: 'center',
-            mb: 4 
+            mb: 4,
+            fontSize: { xs: '1.125rem', sm: '1.25rem', md: '1.5rem' }
           }}
         >
           ✅ Assessment Completed!
@@ -182,7 +184,11 @@ export default function AssessmentResults({
               <Typography variant="body1" sx={{ color: '#E0E0E0', mb: 1 }}>
                 Questions Correct
               </Typography>
-              <Typography variant="h3" sx={{ color: '#4CAF50', fontWeight: 'bold' }}>
+              <Typography variant="h5" sx={{ 
+                color: '#4CAF50', 
+                fontWeight: 'bold',
+                fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }
+              }}>
                 {correctAnswers}/24
               </Typography>
             </Box>
@@ -199,7 +205,11 @@ export default function AssessmentResults({
               <Typography variant="body1" sx={{ color: '#E0E0E0', mb: 1 }}>
                 Accuracy
               </Typography>
-              <Typography variant="h3" sx={{ color: '#4CAF50', fontWeight: 'bold' }}>
+              <Typography variant="h5" sx={{ 
+                color: '#4CAF50', 
+                fontWeight: 'bold',
+                fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }
+              }}>
                 {accuracy}%
               </Typography>
             </Box>

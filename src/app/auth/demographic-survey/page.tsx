@@ -117,42 +117,57 @@ export default function DemographicSurveyPage() {
   return (
     <Container maxWidth="md" sx={{ 
       minHeight: '100vh', 
+      height: '100vh',
       display: 'flex', 
       alignItems: 'center',
-      py: 4
+      py: { xs: 2, sm: 3, md: 2 },
+      px: { xs: 2, sm: 3, md: 4 }
     }}>
       <Paper sx={{ 
         width: '100%', 
-        p: 4,
+        maxWidth: 600,
+        margin: '0 auto',
+        p: { xs: 3, sm: 4, md: 5 },
         backgroundColor: '#4a4a4a',
-        borderRadius: 2,
+        borderRadius: { xs: 2, md: 3 },
+        maxHeight: { xs: '90vh', sm: 'none' },
+        overflow: { xs: 'auto', sm: 'visible' },
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: { md: '0 20px 60px rgba(0,0,0,0.3)' }
       }}>
         {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Box sx={{ textAlign: 'center', mb: { xs: 3, sm: 4 }, flexShrink: 0 }}>
           <Typography variant="h4" component="h1" sx={{ 
             color: '#FF6B35',
             fontWeight: 'bold',
-            mb: 2
+            mb: { xs: 1.5, sm: 2, md: 2 },
+            fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
+            lineHeight: 1.2
           }}>
             Welcome to CredAhead!
           </Typography>
           <Typography variant="h6" sx={{ 
             color: '#E0E0E0',
-            mb: 2
+            mb: { xs: 1.5, sm: 2, md: 2 },
+            fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+            fontWeight: 500
           }}>
             Help us personalize your experience
           </Typography>
           <Typography variant="body1" sx={{ 
             color: '#B0B0B0',
-            maxWidth: '600px',
-            mx: 'auto'
+            maxWidth: '500px',
+            mx: 'auto',
+            fontSize: { xs: '0.875rem', sm: '0.9375rem', md: '1rem' },
+            lineHeight: 1.5
           }}>
             Please answer a few quick questions so we can better understand our users and improve your learning experience.
           </Typography>
         </Box>
 
         {/* Progress indicator */}
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: { xs: 3, sm: 4 }, flexShrink: 0 }}>
           <Typography variant="body2" sx={{ color: '#B0B0B0', mb: 1, textAlign: 'center' }}>
             Step 2 of 3: Demographic Survey
           </Typography>
@@ -176,9 +191,9 @@ export default function DemographicSurveyPage() {
           </Alert>
         )}
 
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
           {/* Age Range */}
-          <FormControl fullWidth margin="normal" sx={{ mb: 3 }}>
+          <FormControl fullWidth margin="normal" sx={{ mb: { xs: 2, sm: 3 } }}>
             <InputLabel sx={{ 
               color: '#E0E0E0',
               '&.Mui-focused': { color: '#FF6B35' }
@@ -222,7 +237,7 @@ export default function DemographicSurveyPage() {
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Enter your city or town"
             sx={{
-              mb: 3,
+              mb: { xs: 2, sm: 3 },
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
                   borderColor: '#666',
@@ -247,7 +262,7 @@ export default function DemographicSurveyPage() {
           />
 
           {/* Occupation */}
-          <FormControl fullWidth margin="normal" sx={{ mb: 4 }}>
+          <FormControl fullWidth margin="normal" sx={{ mb: { xs: 3, sm: 4 } }}>
             <InputLabel sx={{ 
               color: '#E0E0E0',
               '&.Mui-focused': { color: '#FF6B35' }
@@ -288,17 +303,23 @@ export default function DemographicSurveyPage() {
             variant="contained"
             disabled={!isFormComplete || loading}
             sx={{ 
-              py: 2,
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
+              height: { xs: '48px', sm: '52px', md: '56px' },
+              fontSize: { xs: '0.875rem', sm: '0.9375rem', md: '1rem' },
+              fontWeight: 600,
+              borderRadius: { xs: '8px', md: '12px' },
+              textTransform: 'none',
               backgroundColor: isFormComplete ? '#FF6B35' : '#666',
+              transition: 'all 0.2s ease',
               '&:hover': {
                 backgroundColor: isFormComplete ? '#e55a2b' : '#666',
+                transform: isFormComplete && { md: 'translateY(-1px)' },
+                boxShadow: isFormComplete && { md: '0 4px 12px rgba(255,107,53,0.3)' }
               },
               '&:disabled': {
                 backgroundColor: '#666',
                 color: '#999'
-              }
+              },
+              mt: 'auto'
             }}
           >
             {loading ? 'Saving...' : 'Continue to Assessment'}
@@ -306,8 +327,11 @@ export default function DemographicSurveyPage() {
         </Box>
 
         {/* Footer note */}
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Typography variant="body2" sx={{ color: '#999', fontSize: '0.9rem' }}>
+        <Box sx={{ mt: { xs: 2, sm: 3 }, textAlign: 'center', flexShrink: 0 }}>
+          <Typography variant="body2" sx={{ 
+            color: '#999', 
+            fontSize: { xs: '0.8rem', sm: '0.9rem' }
+          }}>
             Your information is secure and will only be used to improve our platform.
           </Typography>
         </Box>

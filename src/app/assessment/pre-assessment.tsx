@@ -13,10 +13,11 @@ export default function PreAssessmentScreen({ onStart }: { onStart: () => void }
         borderRadius: 3,
         boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
       }}>
-        <Typography variant="h3" component="h1" gutterBottom sx={{ 
+        <Typography variant="h4" component="h1" gutterBottom sx={{ 
           color: '#FF6B35', 
           fontWeight: 'bold',
-          mb: 3
+          mb: 3,
+          fontSize: { xs: '1.25rem', sm: '1.375rem', md: '1.75rem' }
         }}>
           Let's check your current financial literacy score!
         </Typography>
@@ -26,7 +27,8 @@ export default function PreAssessmentScreen({ onStart }: { onStart: () => void }
           color: '#E0E0E0',
           lineHeight: 1.6,
           maxWidth: '600px',
-          margin: '0 auto 2rem'
+          margin: '0 auto 2rem',
+          fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' }
         }}>
           This assessment will help us understand your current level of financial knowledge 
           and create a personalized learning pathway just for you.

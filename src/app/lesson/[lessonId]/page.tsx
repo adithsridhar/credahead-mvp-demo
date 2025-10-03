@@ -337,19 +337,21 @@ export default function LessonQuizPage() {
       <Container maxWidth="lg" sx={{ py: 4, minHeight: '100vh' }}>
         <Card sx={{ backgroundColor: '#4a4a4a', borderRadius: 2, mb: 4 }}>
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="h3" sx={{ 
+            <Typography variant="h4" sx={{ 
               color: '#FF6B35', 
               fontWeight: 'bold', 
               textAlign: 'center',
-              mb: 2
+              mb: 2,
+              fontSize: { xs: '1.25rem', sm: '1.375rem', md: '1.75rem' }
             }}>
               Quiz Results
             </Typography>
             
-            <Typography variant="h4" sx={{ 
+            <Typography variant="h5" sx={{ 
               color: quizResults.completed ? '#4CAF50' : '#F44336',
               textAlign: 'center',
-              mb: 4
+              mb: 4,
+              fontSize: { xs: '1.125rem', sm: '1.25rem', md: '1.5rem' }
             }}>
               {quizResults.completed ? '✅ Lesson Completed!' : '❌ Lesson Incomplete'}
             </Typography>
@@ -448,7 +450,8 @@ export default function LessonQuizPage() {
           fontWeight: 'bold',
           textAlign: 'center',
           flexGrow: 1,
-          mx: 4
+          mx: 4,
+          fontSize: { xs: '1.25rem', sm: '1.375rem', md: '1.75rem' }
         }}>
           {lesson?.title?.toUpperCase() || 'LESSON'}
         </Typography>

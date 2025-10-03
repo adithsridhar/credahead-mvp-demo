@@ -1,8 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { validateAdminAuth } from '@/lib/auth/adminAuth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Validate admin authentication FIRST
+    const isAuthorized = await validateAdminAuth(request);
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin access required' }, 
+        { status: 401 }
+      );
+    }
+
     if (!supabaseAdmin) {
       return NextResponse.json({ error: 'Admin client not available' }, { status: 500 });
     }

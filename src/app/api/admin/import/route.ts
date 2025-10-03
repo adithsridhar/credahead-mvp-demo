@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { validateAdminAuth } from '@/lib/auth/adminAuth';
 
 interface LessonRow {
   lesson_id: string;
@@ -118,6 +119,15 @@ function transformQuestions(rows: any[]): QuestionRow[] {
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate admin authentication FIRST
+    const isAuthorized = await validateAdminAuth(request);
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin access required' }, 
+        { status: 401 }
+      );
+    }
+
     // Create admin client in server environment
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

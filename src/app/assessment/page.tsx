@@ -289,10 +289,19 @@ export default function AssessmentPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ 
+      py: { xs: 2, sm: 4 },
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
       {/* Progress Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" align="center" gutterBottom sx={{ color: '#E0E0E0' }}>
+      <Box sx={{ mb: { xs: 2, sm: 4 }, flexShrink: 0 }}>
+        <Typography variant="h6" align="center" gutterBottom sx={{ 
+          color: '#E0E0E0',
+          fontSize: { xs: '1rem', sm: '1.25rem' }
+        }}>
           Question {questionIndex + 1} of {TOTAL_QUESTIONS}
         </Typography>
         <LinearProgress
@@ -307,34 +316,51 @@ export default function AssessmentPage() {
             },
           }}
         />
-        <Box sx={{ mt: 2, display: 'flex', justify: 'space-between', alignItems: 'center' }}>
-          <Typography variant="body2" sx={{ color: '#B0B0B0' }}>
+        <Box sx={{ 
+          mt: { xs: 1, sm: 2 }, 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Typography variant="body2" sx={{ 
+            color: '#B0B0B0',
+            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+          }}>
             Current Difficulty: {currentDifficulty.toFixed(1)}
           </Typography>
-          <Typography variant="body2" sx={{ color: '#B0B0B0' }}>
+          <Typography variant="body2" sx={{ 
+            color: '#B0B0B0',
+            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+          }}>
             Progress: {Math.round((questionIndex / TOTAL_QUESTIONS) * 100)}%
           </Typography>
         </Box>
       </Box>
 
       {/* Question Display */}
-      {isLoading ? (
-        <Box sx={{ display: 'flex', justify: 'center', py: 8 }}>
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {isLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
           <CircularProgress size={60} sx={{ color: '#FF6B35' }} />
-        </Box>
-      ) : currentQuestion ? (
-        <QuestionCard
-          question={currentQuestion}
-          onAnswer={handleAnswer}
-          disabled={isLoading}
-        />
-      ) : (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
+          </Box>
+        ) : currentQuestion ? (
+          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+            <QuestionCard
+              question={currentQuestion}
+              onAnswer={handleAnswer}
+              disabled={isLoading}
+            />
+          </Box>
+        ) : (
+          <Box sx={{ textAlign: 'center', flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Typography variant="h6" color="error">
             No questions available. Please try again later.
           </Typography>
-        </Box>
-      )}
+          </Box>
+        )}
+      </Box>
     </Container>
   );
 }

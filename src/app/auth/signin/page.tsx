@@ -52,14 +52,27 @@ export default function SignInPage() {
       setAdminLoading(true);
       setAdminError('');
       
-      if (adminPassword === 'admin') {
+      // Use secure admin login API
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password: adminPassword }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // Authentication successful - JWT cookie is set automatically
         setShowAdminModal(false);
         setAdminPassword('');
         router.push('/admin');
       } else {
-        setAdminError('Invalid admin password');
+        setAdminError(data.error || 'Invalid admin password');
       }
     } catch (error: any) {
+      console.error('Admin login error:', error);
       setAdminError('Authentication failed');
     } finally {
       setAdminLoading(false);
@@ -69,21 +82,30 @@ export default function SignInPage() {
   return (
     <Container maxWidth="sm" sx={{ 
       minHeight: '100vh', 
+      height: '100vh',
       display: 'flex', 
       alignItems: 'center',
-      py: 4
+      py: { xs: 2, sm: 3, md: 2 },
+      px: { xs: 2, sm: 3, md: 4 }
     }}>
       <Paper sx={{ 
         width: '100%', 
-        p: 4,
+        p: { xs: 3, sm: 4, md: 5 },
         backgroundColor: '#4a4a4a',
-        borderRadius: 2,
+        borderRadius: { xs: 2, md: 3 },
+        maxHeight: { xs: '90vh', sm: 'none' },
+        overflow: { xs: 'auto', sm: 'visible' },
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: { md: '0 20px 60px rgba(0,0,0,0.3)' }
       }}>
         <Typography variant="h4" component="h1" gutterBottom sx={{ 
           textAlign: 'center',
           color: '#FF6B35',
           fontWeight: 'bold',
-          mb: 3
+          mb: { xs: 2, sm: 3, md: 2 },
+          fontSize: { xs: '1.25rem', sm: '1.375rem', md: '1.75rem' },
+          lineHeight: 1.2
         }}>
           Sign In
         </Typography>
@@ -94,7 +116,12 @@ export default function SignInPage() {
           </Alert>
         )}
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ 
+          mt: { xs: 1, md: 2 }, 
+          flexGrow: 1, 
+          display: 'flex', 
+          flexDirection: 'column' 
+        }}>
           <TextField
             margin="normal"
             required
@@ -107,19 +134,25 @@ export default function SignInPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             sx={{
+              mb: { xs: 2, md: 3 },
               '& .MuiOutlinedInput-root': {
+                height: { xs: '48px', sm: '52px', md: '56px' },
+                fontSize: { xs: '0.875rem', sm: '0.9375rem', md: '1rem' },
                 '& fieldset': {
                   borderColor: '#666',
+                  borderRadius: { xs: '8px', md: '12px' }
                 },
                 '&:hover fieldset': {
                   borderColor: '#FF6B35',
                 },
                 '&.Mui-focused fieldset': {
                   borderColor: '#FF6B35',
+                  boxShadow: { md: '0 0 0 3px rgba(255,107,53,0.1)' }
                 },
               },
               '& .MuiInputLabel-root': {
                 color: '#E0E0E0',
+                fontSize: { xs: '0.875rem', md: '1rem' },
                 '&.Mui-focused': {
                   color: '#FF6B35',
                 },
@@ -138,19 +171,25 @@ export default function SignInPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             sx={{
+              mb: { xs: 2, md: 3 },
               '& .MuiOutlinedInput-root': {
+                height: { xs: '48px', sm: '52px', md: '56px' },
+                fontSize: { xs: '0.875rem', sm: '0.9375rem', md: '1rem' },
                 '& fieldset': {
                   borderColor: '#666',
+                  borderRadius: { xs: '8px', md: '12px' }
                 },
                 '&:hover fieldset': {
                   borderColor: '#FF6B35',
                 },
                 '&.Mui-focused fieldset': {
                   borderColor: '#FF6B35',
+                  boxShadow: { md: '0 0 0 3px rgba(255,107,53,0.1)' }
                 },
               },
               '& .MuiInputLabel-root': {
                 color: '#E0E0E0',
+                fontSize: { xs: '0.875rem', md: '1rem' },
                 '&.Mui-focused': {
                   color: '#FF6B35',
                 },
@@ -163,30 +202,46 @@ export default function SignInPage() {
             variant="contained"
             disabled={loading}
             sx={{ 
-              mt: 3, 
-              mb: 2,
+              mt: { xs: 2, sm: 3, md: 4 }, 
+              mb: { xs: 2, md: 3 },
+              height: { xs: '48px', sm: '52px', md: '56px' },
               backgroundColor: '#FF6B35',
+              borderRadius: { xs: '8px', md: '12px' },
+              fontSize: { xs: '0.875rem', sm: '0.9375rem', md: '1rem' },
+              fontWeight: 600,
+              textTransform: 'none',
+              transition: 'all 0.2s ease',
               '&:hover': {
                 backgroundColor: '#e55a2b',
+                transform: { md: 'translateY(-1px)' },
+                boxShadow: { md: '0 4px 12px rgba(255,107,53,0.3)' }
               },
-              py: 1.5,
             }}
           >
             {loading ? 'Signing In...' : 'Sign In'}
           </Button>
-          <Box sx={{ textAlign: 'center' }}>
-            <Link href="/auth/signup" style={{ color: '#FF6B35', textDecoration: 'none' }}>
+          <Box sx={{ textAlign: 'center', mb: { md: 2 } }}>
+            <Link href="/auth/signup" style={{ 
+              color: '#FF6B35', 
+              textDecoration: 'none',
+              fontSize: '14px'
+            }}>
               Don't have an account? Sign Up
             </Link>
           </Box>
           
-          <Box sx={{ mt: 3, pt: 3, borderTop: '1px solid #666', textAlign: 'center' }}>
+          <Box sx={{ 
+            mt: { xs: 2, sm: 3, md: 2 }, 
+            pt: { xs: 2, sm: 3, md: 2 }, 
+            borderTop: '1px solid #666', 
+            textAlign: 'center' 
+          }}>
             <Button
               onClick={() => setShowAdminModal(true)}
               sx={{
                 color: '#999',
                 textTransform: 'none',
-                fontSize: '0.9rem',
+                fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' },
                 '&:hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   color: '#FF6B35'

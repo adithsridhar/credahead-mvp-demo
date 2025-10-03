@@ -136,16 +136,36 @@ export default function AdminDashboard() {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ 
+      py: { xs: 2, sm: 4 },
+      height: '100vh',
+      overflow: 'auto',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
       <Typography variant="h3" component="h1" gutterBottom sx={{ 
         color: '#FF6B35', 
         fontWeight: 'bold',
-        mb: 4
+        mb: { xs: 2, sm: 4 },
+        fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+        textAlign: { xs: 'center', sm: 'left' }
       }}>
         Admin Dashboard
       </Typography>
 
-      <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 3 }}>
+      <Tabs 
+        value={tabValue} 
+        onChange={handleTabChange} 
+        sx={{ 
+          mb: { xs: 2, sm: 3 },
+          '& .MuiTabs-scrollButtons': {
+            '&.Mui-disabled': { opacity: 0.3 }
+          }
+        }}
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
+      >
         <Tab label="Overview" />
         <Tab label="Data Import" />
         <Tab label="Content Management" />
@@ -160,56 +180,80 @@ export default function AdminDashboard() {
         ) : (
           <Grid container spacing={3}>
             {/* Stats Cards */}
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={6} sm={6} md={3}>
               <Card sx={{ backgroundColor: '#4a4a4a' }}>
                 <CardContent sx={{ textAlign: 'center' }}>
-                  <School sx={{ fontSize: 40, color: '#FF6B35', mb: 1 }} />
-                  <Typography variant="h4" sx={{ color: '#FF6B35', fontWeight: 'bold' }}>
+                  <School sx={{ fontSize: { xs: 30, sm: 40 }, color: '#FF6B35', mb: 1 }} />
+                  <Typography variant="h4" sx={{ 
+                    color: '#FF6B35', 
+                    fontWeight: 'bold',
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+                  }}>
                     {stats?.totalLessons || 0}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" sx={{
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}>
                     Total Lessons
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={6} sm={6} md={3}>
               <Card sx={{ backgroundColor: '#4a4a4a' }}>
                 <CardContent sx={{ textAlign: 'center' }}>
-                  <QuestionMark sx={{ fontSize: 40, color: '#4CAF50', mb: 1 }} />
-                  <Typography variant="h4" sx={{ color: '#4CAF50', fontWeight: 'bold' }}>
+                  <QuestionMark sx={{ fontSize: { xs: 30, sm: 40 }, color: '#4CAF50', mb: 1 }} />
+                  <Typography variant="h4" sx={{ 
+                    color: '#4CAF50', 
+                    fontWeight: 'bold',
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+                  }}>
                     {stats?.totalQuestions || 0}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" sx={{
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}>
                     Total Questions
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={6} sm={6} md={3}>
               <Card sx={{ backgroundColor: '#4a4a4a' }}>
                 <CardContent sx={{ textAlign: 'center' }}>
-                  <Assessment sx={{ fontSize: 40, color: '#2196F3', mb: 1 }} />
-                  <Typography variant="h4" sx={{ color: '#2196F3', fontWeight: 'bold' }}>
+                  <Assessment sx={{ fontSize: { xs: 30, sm: 40 }, color: '#2196F3', mb: 1 }} />
+                  <Typography variant="h4" sx={{ 
+                    color: '#2196F3', 
+                    fontWeight: 'bold',
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+                  }}>
                     {stats?.totalUsers || 0}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" sx={{
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}>
                     Total Users
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={6} sm={6} md={3}>
               <Card sx={{ backgroundColor: '#4a4a4a' }}>
                 <CardContent sx={{ textAlign: 'center' }}>
-                  <CloudUpload sx={{ fontSize: 40, color: '#9C27B0', mb: 1 }} />
-                  <Typography variant="h4" sx={{ color: '#9C27B0', fontWeight: 'bold' }}>
+                  <CloudUpload sx={{ fontSize: { xs: 30, sm: 40 }, color: '#9C27B0', mb: 1 }} />
+                  <Typography variant="h4" sx={{ 
+                    color: '#9C27B0', 
+                    fontWeight: 'bold',
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+                  }}>
                     {stats?.totalSessions || 0}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" sx={{
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}>
                     Quiz Sessions
                   </Typography>
                 </CardContent>
@@ -217,13 +261,16 @@ export default function AdminDashboard() {
             </Grid>
 
             {/* User Data */}
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} lg={6}>
               <Card sx={{ backgroundColor: '#4a4a4a' }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom sx={{ color: '#FF6B35' }}>
                     User Data
                   </Typography>
-                  <TableContainer sx={{ maxHeight: 400 }}>
+                  <TableContainer sx={{ 
+                    maxHeight: { xs: 300, sm: 400 },
+                    overflow: 'auto'
+                  }}>
                     <Table size="small" stickyHeader>
                       <TableHead>
                         <TableRow>
@@ -262,7 +309,7 @@ export default function AdminDashboard() {
             </Grid>
 
             {/* Lessons by Module */}
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} sm={6} lg={3}>
               <Card sx={{ backgroundColor: '#4a4a4a' }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom sx={{ color: '#FF6B35' }}>
@@ -302,7 +349,7 @@ export default function AdminDashboard() {
             </Grid>
 
             {/* Lessons by Level */}
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} sm={6} lg={3}>
               <Card sx={{ backgroundColor: '#4a4a4a' }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom sx={{ color: '#FF6B35' }}>

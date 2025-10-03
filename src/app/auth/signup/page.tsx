@@ -54,21 +54,30 @@ export default function SignUpPage() {
   return (
     <Container maxWidth="sm" sx={{ 
       minHeight: '100vh', 
+      height: '100vh',
       display: 'flex', 
       alignItems: 'center',
-      py: 4
+      py: { xs: 2, sm: 3, md: 2 },
+      px: { xs: 2, sm: 3, md: 4 }
     }}>
       <Paper sx={{ 
         width: '100%', 
-        p: 4,
+        p: { xs: 3, sm: 4, md: 5 },
         backgroundColor: '#4a4a4a',
-        borderRadius: 2,
+        borderRadius: { xs: 2, md: 3 },
+        maxHeight: { xs: '90vh', sm: 'none' },
+        overflow: { xs: 'auto', sm: 'visible' },
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: { md: '0 20px 60px rgba(0,0,0,0.3)' }
       }}>
         <Typography variant="h4" component="h1" gutterBottom sx={{ 
           textAlign: 'center',
           color: '#FF6B35',
           fontWeight: 'bold',
-          mb: 3
+          mb: { xs: 2, sm: 3, md: 2 },
+          fontSize: { xs: '1.25rem', sm: '1.375rem', md: '1.75rem' },
+          lineHeight: 1.2
         }}>
           Sign Up
         </Typography>
@@ -85,7 +94,12 @@ export default function SignUpPage() {
           </Alert>
         )}
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ 
+          mt: { xs: 1, md: 2 }, 
+          flexGrow: 1, 
+          display: 'flex', 
+          flexDirection: 'column' 
+        }}>
           <TextField
             margin="normal"
             required
@@ -214,13 +228,20 @@ export default function SignUpPage() {
             variant="contained"
             disabled={loading || !!success}
             sx={{ 
-              mt: 3, 
-              mb: 2,
+              mt: { xs: 2, sm: 3, md: 4 }, 
+              mb: { xs: 2, md: 3 },
+              height: { xs: '48px', sm: '52px', md: '56px' },
               backgroundColor: '#FF6B35',
+              borderRadius: { xs: '8px', md: '12px' },
+              fontSize: { xs: '0.875rem', sm: '0.9375rem', md: '1rem' },
+              fontWeight: 600,
+              textTransform: 'none',
+              transition: 'all 0.2s ease',
               '&:hover': {
                 backgroundColor: '#e55a2b',
+                transform: { md: 'translateY(-1px)' },
+                boxShadow: { md: '0 4px 12px rgba(255,107,53,0.3)' }
               },
-              py: 1.5,
             }}
           >
             {loading ? 'Creating Account...' : 'Sign Up'}
