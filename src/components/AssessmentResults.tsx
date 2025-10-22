@@ -23,6 +23,8 @@ export default function AssessmentResults({
   responses,
   onContinue 
 }: AssessmentResultsProps) {
+  console.log('🔥 ASSESSMENT RESULTS COMPONENT RENDERED - CHECK THIS LOG!');
+  console.log('🔥 RESPONSES PASSED TO COMPONENT:', responses);
   const router = useRouter();
   const [modulePerformance, setModulePerformance] = useState<ModulePerformance[]>([]);
   const [percentile, setPercentile] = useState<number | null>(null);
@@ -33,10 +35,25 @@ export default function AssessmentResults({
   
   // Load module performance data and calculate percentile
   useEffect(() => {
+    console.log('🚀 AssessmentResults useEffect triggered!');
+    console.log('📊 Received responses:', responses);
+    console.log('📊 Responses length:', responses?.length || 0);
+    
+    // CRITICAL FIX: Only process if we have valid responses
+    if (!responses || responses.length === 0) {
+      console.log('⏳ No responses yet, waiting...');
+      setIsLoading(true);
+      return;
+    }
+    
+    console.log('✅ Valid responses found, processing...');
+    
     const loadData = async () => {
       try {
+        console.log('🔄 Starting calculateModulePerformance with responses:', responses);
         // Load module performance
         const performance = await calculateModulePerformance(responses);
+        console.log('✅ Module performance calculated:', performance);
         setModulePerformance(performance);
         
         // Calculate percentile for user's score
@@ -146,20 +163,32 @@ export default function AssessmentResults({
                         textAlign: 'center',
                         p: 1,
                         backgroundColor: '#4a4a4a',
-                        borderRadius: 1
+                        borderRadius: 1,
+                        height: '85px', // Fixed height based on longest module name
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between'
                       }}>
                         <Typography variant="caption" sx={{ 
                           color: '#E0E0E0',
                           display: 'block',
-                          mb: 0.5,
-                          fontSize: '0.7rem'
+                          fontSize: '0.7rem',
+                          lineHeight: 1.3,
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                          wordWrap: 'break-word',
+                          hyphens: 'auto'
                         }}>
                           {module.moduleName}
                         </Typography>
                         <Typography sx={{ 
                           fontWeight: 'bold',
                           fontSize: '1rem',
-                          color: getScoreColor(module.accuracy)
+                          color: getScoreColor(module.accuracy),
+                          mt: 1
                         }}>
                           {module.accuracy === null ? 'NA' : `${module.accuracy}%`}
                         </Typography>

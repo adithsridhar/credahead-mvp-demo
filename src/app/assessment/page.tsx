@@ -189,14 +189,29 @@ export default function AssessmentPage() {
   };
 
   const completeAssessment = async () => {
-    if (!user || !sessionId) return;
+    console.log('🎯 completeAssessment called!');
+    console.log('🎯 User:', user?.id);
+    console.log('🎯 SessionId:', sessionId);
+    console.log('🎯 Responses length:', responses.length);
+    console.log('🎯 Responses:', responses);
+    
+    if (!user || !sessionId) {
+      console.log('❌ Missing user or sessionId, returning early');
+      return;
+    }
 
     try {
+      console.log('🔄 Starting assessment completion...');
       setIsCompleting(true);
       
       const finalResponses = responses.length > 0 ? responses : [];
+      console.log('📊 Final responses:', finalResponses);
+      
       const literacyLevel = calculateLiteracyLevel(finalResponses);
       const correctAnswers = finalResponses.filter(r => r.isCorrect).length;
+      
+      console.log('📈 Calculated literacy level:', literacyLevel);
+      console.log('✅ Correct answers:', correctAnswers);
       const duration = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
 
       // Update user's literacy level
@@ -230,14 +245,20 @@ export default function AssessmentPage() {
       await refreshAppUser();
 
       // Set results and show results screen
-      setAssessmentResults({
+      console.log('🎊 Setting assessment results...');
+      const resultsData = {
         score: literacyLevel,
         correctAnswers: correctAnswers,
         totalQuestions: TOTAL_QUESTIONS,
         duration: duration,
-      });
+      };
+      console.log('📋 Results data:', resultsData);
+      
+      setAssessmentResults(resultsData);
       setQuizActive(false);
       setShowResults(true);
+      
+      console.log('✨ Assessment completion finished - results should be visible now');
     } catch (error) {
       console.error('Error completing assessment:', error);
     } finally {
