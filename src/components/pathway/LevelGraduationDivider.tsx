@@ -20,8 +20,8 @@ export default function LevelGraduationDivider({
   containerWidth = 600,
   containerHeight = 2000
 }: LevelGraduationDividerProps) {
-  // Calculate exact position on curved path
-  const pathCoords = getPathCoordinates(yPosition, containerWidth, containerHeight);
+  // Calculate exact position on curved path - using dummy values since pathway is disabled
+  const pathCoords = getPathCoordinates(yPosition, 100, containerWidth, containerHeight);
   return (
     <Box
       sx={{

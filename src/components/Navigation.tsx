@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigationGuard } from '@/contexts/NavigationGuardContext';
+import { isFeatureEnabled } from '@/lib/featureFlags';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 
 export default function Navigation() {
@@ -33,7 +34,7 @@ export default function Navigation() {
           fontWeight: 600
         }}>
           <span 
-            onClick={() => requestNavigation('/pathway')}
+            onClick={() => isFeatureEnabled('learningPathway') ? requestNavigation('/pathway') : requestNavigation('/')}
             style={{ 
               textDecoration: 'none', 
               color: 'inherit', 
@@ -73,24 +74,26 @@ export default function Navigation() {
         }}>
           {user ? (
             <>
-              <Button 
-                color="inherit" 
-                component={Link} 
-                href="/pathway"
-                sx={{
-                  fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
-                  px: { xs: 1.5, sm: 2, md: 3 },
-                  py: { md: 1 },
-                  minWidth: { xs: 'auto', sm: '64px' },
-                  borderRadius: { md: 2 },
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    backgroundColor: { md: 'rgba(255,255,255,0.1)' }
-                  }
-                }}
-              >
-                Pathway
-              </Button>
+              {isFeatureEnabled('learningPathway') && (
+                <Button 
+                  color="inherit" 
+                  component={Link} 
+                  href="/pathway"
+                  sx={{
+                    fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
+                    px: { xs: 1.5, sm: 2, md: 3 },
+                    py: { md: 1 },
+                    minWidth: { xs: 'auto', sm: '64px' },
+                    borderRadius: { md: 2 },
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: { md: 'rgba(255,255,255,0.1)' }
+                    }
+                  }}
+                >
+                  Pathway
+                </Button>
+              )}
               <Button 
                 color="inherit" 
                 component={Link} 

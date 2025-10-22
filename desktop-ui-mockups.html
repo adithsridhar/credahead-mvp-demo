@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CredAhead Desktop/Tablet UI Mockups</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .mockup-section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        /* Device Frames */
+        .laptop-frame {
+            width: 1200px;
+            height: 750px;
+            background: #333;
+            border-radius: 16px;
+            padding: 20px 20px 40px 20px;
+            margin: 0 auto 40px auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .laptop-frame::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: #666;
+            border-radius: 2px;
+        }
+
+        .tablet-frame {
+            width: 768px;
+            height: 1024px;
+            background: #333;
+            border-radius: 20px;
+            padding: 12px;
+            margin: 0 auto 40px auto;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+        }
+
+        .device-screen {
+            width: 100%;
+            height: 100%;
+            background: #3b3b3b;
+            border-radius: 8px;
+            overflow: hidden;
+            color: #E0E0E0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation */
+        .nav {
+            background: #2d2d2d;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            border-bottom: 1px solid #444;
+        }
+
+        .nav-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #FF6B35;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            color: #E0E0E0;
+            font-size: 16px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-level {
+            font-size: 16px;
+            color: #FF6B35;
+            background: rgba(255,107,53,0.1);
+            padding: 6px 12px;
+            border-radius: 12px;
+        }
+
+        /* Content Areas */
+        .content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .content-centered {
+            max-width: 500px;
+            margin: 0 auto;
+            padding-top: 60px;
+        }
+
+        .content-wide {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Typography - Desktop */
+        .h3-desktop { font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 24px; }
+        .h4-desktop { font-size: 28px; font-weight: 700; line-height: 1.2; margin-bottom: 20px; }
+        .h5-desktop { font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; }
+        .h6-desktop { font-size: 20px; font-weight: 600; line-height: 1.3; margin-bottom: 16px; }
+        .body-desktop { font-size: 16px; line-height: 1.5; margin-bottom: 16px; }
+        .small-desktop { font-size: 14px; line-height: 1.4; color: #B0B0B0; }
+
+        /* Typography - Tablet */
+        .h4-tablet { font-size: 26px; font-weight: 700; line-height: 1.2; margin-bottom: 20px; }
+        .h5-tablet { font-size: 22px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; }
+        .h6-tablet { font-size: 19px; font-weight: 600; line-height: 1.3; margin-bottom: 14px; }
+        .body-tablet { font-size: 15px; line-height: 1.5; margin-bottom: 14px; }
+        .small-tablet { font-size: 13px; line-height: 1.4; color: #B0B0B0; }
+
+        .text-center { text-align: center; }
+        .text-orange { color: #FF6B35; }
+
+        /* Form Elements - Desktop */
+        .form-group-desktop {
+            margin-bottom: 24px;
+        }
+
+        .input-desktop {
+            width: 100%;
+            height: 56px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #666;
+            border-radius: 12px;
+            padding: 0 20px;
+            font-size: 16px;
+            color: #E0E0E0;
+        }
+
+        .input-desktop:focus {
+            border-color: #FF6B35;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+        }
+
+        .button-desktop {
+            width: 100%;
+            height: 56px;
+            background: #FF6B35;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .button-desktop:hover {
+            background: #e55a2b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+        }
+
+        /* Form Elements - Tablet */
+        .form-group-tablet {
+            margin-bottom: 20px;
+        }
+
+        .input-tablet {
+            width: 100%;
+            height: 52px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #666;
+            border-radius: 10px;
+            padding: 0 18px;
+            font-size: 15px;
+            color: #E0E0E0;
+        }
+
+        .button-tablet {
+            width: 100%;
+            height: 52px;
+            background: #FF6B35;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* Progress */
+        .progress-section {
+            background: rgba(255,255,255,0.05);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+
+        .progress-bar-desktop {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #FF6B35;
+            border-radius: 4px;
+        }
+
+        /* Assessment Layout */
+        .assessment-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .question-panel {
+            background: #4a4a4a;
+            padding: 32px;
+            border-radius: 16px;
+        }
+
+        .info-panel {
+            background: rgba(255,255,255,0.05);
+            padding: 24px;
+            border-radius: 16px;
+            height: fit-content;
+        }
+
+        /* Radio Options */
+        .radio-group-desktop {
+            margin: 24px 0;
+        }
+
+        .radio-option-desktop {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-option-desktop:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(4px);
+        }
+
+        .radio-desktop {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #666;
+            border-radius: 50%;
+            margin-right: 16px;
+        }
+
+        /* Stats Grid - Desktop */
+        .stats-grid-desktop {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card-desktop {
+            background: #4a4a4a;
+            padding: 32px 24px;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .stat-card-desktop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .stat-icon-desktop {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .stat-number-desktop {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-label-desktop {
+            font-size: 14px;
+            color: #B0B0B0;
+        }
+
+        /* Admin Layout */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 32px;
+        }
+
+        .admin-table {
+            background: #4a4a4a;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #666;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .table-row {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .description {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            color: #333;
+        }
+
+        /* Responsive breakpoints shown */
+        .breakpoint-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #FF6B35;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="section-title">CredAhead Desktop & Tablet UI Mockups</h1>
+
+        <!-- Laptop/Desktop Mockups -->
+        <div class="mockup-section">
+            <h2 style="text-align: center; margin-bottom: 30px; font-size: 28px; color: #333;">💻 Desktop/Laptop View (1200px+)</h2>
+            
+            <!-- Desktop Sign In -->
+            <div class="description">
+                <h3>🔐 Desktop Sign In Page</h3>
+                <ul>
+                    <li><strong>H4 heading</strong> (28px) - larger for desktop impact</li>
+                    <li><strong>Centered layout</strong> with max-width 500px for focus</li>
+                    <li><strong>Enhanced interactions</strong> - hover effects and smooth transitions</li>
+                    <li><strong>Professional spacing</strong> with generous padding</li>
+                </ul>
+            </div>
+            <div class="laptop-frame">
+                <div class="device-screen">
+                    <div class="nav">
+                        <div class="nav-title">CredAhead</div>
+                        <div class="nav-items">
+                            <button class="nav-button">About</button>
+                            <button class="nav-button">Contact</button>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="content-centered">
+                            <div style="text-align: center; margin-bottom: 48px;">
+                                <div style="font-size: 64px; margin-bottom: 24px;">🎓</div>
+                                <div class="h4-desktop text-orange">Sign In to Your Account</div>
+                                <div class="body-desktop" style="color: #B0B0B0;">Welcome back! Please enter your credentials to continue.</div>
+                            </div>
+                            
+                            <div class="form-group-desktop">
+                                <input class="input-desktop" placeholder="Email Address" type="email">
+                            </div>
+                            <div class="form-group-desktop">
+                                <input class="input-desktop" placeholder="Password" type="password">
+                            </div>
+                            
+                            <button class="button-desktop" style="margin: 32px 0 24px 0;">SIGN IN</button>
+                            
+                            <div class="text-center">
+                                <a href="#" style="color: #FF6B35; text-decoration: none; font-size: 16px;">Don't have an account? Sign Up</a>
+                            </div>
+                            
+                            <div style="border-top: 1px solid #666; margin: 48px 0 24px 0; padding-top: 24px; text-align: center;">
+                                <a href="#" style="color: #B0B0B0; text-decoration: none; font-size: 14px;">Admin Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop Assessment -->
+            <div class="description">
+                <h3>📊 Desktop Assessment Page</h3>
+                <ul>
+                    <li><strong>Two-column layout</strong> - question on left, info panel on right</li>
+                    <li><strong>H5 questions</strong> (24px) for desktop readability</li>
+                    <li><strong>Enhanced hover effects</strong> for better interaction feedback</li>
+                    <li><strong>Progress panel</strong> with additional context information</li>
+                </ul>
+            </div>
+            <div class="laptop-frame">
+                <div class="device-screen">
+                    <div class="nav">
+                        <div class="nav-title">CredAhead</div>
+                        <div class="nav-items">
+                            <div class="nav-level">Level 3</div>
+                            <button class="nav-button">Pathway</button>
+                            <button class="nav-button">Sign Out</button>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="assessment-layout">
+                            <div class="question-panel">
+                                <div class="h5-desktop" style="margin-bottom: 32px;">
+                                    What is the primary purpose of financial literacy education in modern society?
+                                </div>
+                                
+                                <div class="radio-group-desktop">
+                                    <div class="radio-option-desktop">
+                                        <div class="radio-desktop"></div>
+                                        <div class="body-desktop" style="margin: 0;">To learn advanced investment strategies and portfolio management</div>
+                                    </div>
+                                    <div class="radio-option-desktop">
+                                        <div class="radio-desktop"></div>
+                                        <div class="body-desktop" style="margin: 0;">To understand basic money management and personal finance</div>
+                                    </div>
+                                    <div class="radio-option-desktop">
+                                        <div class="radio-desktop"></div>
+                                        <div class="body-desktop" style="margin: 0;">To become a certified financial advisor or planner</div>
+                                    </div>
+                                    <div class="radio-option-desktop">
+                                        <div class="radio-desktop"></div>
+                                        <div class="body-desktop" style="margin: 0;">To avoid paying taxes and maximize deductions</div>
+                                    </div>
+                                </div>
+                                
+                                <button class="button-desktop" style="margin-top: 32px;">SUBMIT ANSWER</button>
+                            </div>
+                            
+                            <div class="info-panel">
+                                <div class="h6-desktop" style="margin-bottom: 20px;">Assessment Progress</div>
+                                
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <span class="body-desktop" style="margin: 0;">Question 5 of 24</span>
+                                    <span class="body-desktop" style="margin: 0; color: #FF6B35;">21%</span>
+                                </div>
+                                <div class="progress-bar-desktop">
+                                    <div class="progress-fill" style="width: 21%;"></div>
+                                </div>
+                                
+                                <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #666;">
+                                    <div class="small-desktop" style="margin-bottom: 8px;">Current Difficulty: 4.2/10</div>
+                                    <div class="small-desktop" style="margin-bottom: 8px;">Correct Answers: 3/4</div>
+                                    <div class="small-desktop">Estimated Time: 2 minutes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop Admin Dashboard -->
+            <div class="description">
+                <h3>👑 Desktop Admin Dashboard</h3>
+                <ul>
+                    <li><strong>Full 4-column stats grid</strong> utilizing desktop screen space</li>
+                    <li><strong>Three-column layout</strong> for data tables and analytics</li>
+                    <li><strong>Hover animations</strong> and enhanced visual feedback</li>
+                    <li><strong>Professional dashboard appearance</strong> with proper data density</li>
+                </ul>
+            </div>
+            <div class="laptop-frame">
+                <div class="device-screen">
+                    <div class="nav">
+                        <div class="nav-title">Admin Dashboard</div>
+                        <div class="nav-items">
+                            <button class="nav-button">Overview</button>
+                            <button class="nav-button">Import</button>
+                            <button class="nav-button">Content</button>
+                            <button class="nav-button">Settings</button>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="h3-desktop text-orange" style="margin-bottom: 40px;">Dashboard Overview</div>
+                        
+                        <div class="stats-grid-desktop">
+                            <div class="stat-card-desktop">
+                                <div class="stat-icon-desktop text-orange">📚</div>
+                                <div class="stat-number-desktop text-orange">12</div>
+                                <div class="stat-label-desktop">Total Lessons</div>
+                            </div>
+                            <div class="stat-card-desktop">
+                                <div class="stat-icon-desktop" style="color: #4CAF50;">❓</div>
+                                <div class="stat-number-desktop" style="color: #4CAF50;">245</div>
+                                <div class="stat-label-desktop">Total Questions</div>
+                            </div>
+                            <div class="stat-card-desktop">
+                                <div class="stat-icon-desktop" style="color: #2196F3;">👥</div>
+                                <div class="stat-number-desktop" style="color: #2196F3;">6</div>
+                                <div class="stat-label-desktop">Active Users</div>
+                            </div>
+                            <div class="stat-card-desktop">
+                                <div class="stat-icon-desktop" style="color: #9C27B0;">📊</div>
+                                <div class="stat-number-desktop" style="color: #9C27B0;">18</div>
+                                <div class="stat-label-desktop">Quiz Sessions</div>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-layout">
+                            <div class="admin-table">
+                                <div class="table-header">Recent User Activity</div>
+                                <div class="table-row">
+                                    <div>
+                                        <div style="font-weight: 600;">john@email.com</div>
+                                        <div class="small-desktop">Completed Assessment</div>
+                                    </div>
+                                    <div style="color: #FF6B35; font-weight: 600;">Level 3</div>
+                                </div>
+                                <div class="table-row">
+                                    <div>
+                                        <div style="font-weight: 600;">jane@email.com</div>
+                                        <div class="small-desktop">Started Learning Path</div>
+                                    </div>
+                                    <div style="color: #FF6B35; font-weight: 600;">Level 1</div>
+                                </div>
+                                <div class="table-row">
+                                    <div>
+                                        <div style="font-weight: 600;">mike@email.com</div>
+                                        <div class="small-desktop">Completed Module 2</div>
+                                    </div>
+                                    <div style="color: #FF6B35; font-weight: 600;">Level 5</div>
+                                </div>
+                            </div>
+                            
+                            <div class="admin-table">
+                                <div class="table-header">Lessons by Module</div>
+                                <div class="table-row">
+                                    <span>Basics</span>
+                                    <span style="background: #4CAF50; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">4</span>
+                                </div>
+                                <div class="table-row">
+                                    <span>Budgeting</span>
+                                    <span style="background: #4CAF50; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">3</span>
+                                </div>
+                                <div class="table-row">
+                                    <span>Investing</span>
+                                    <span style="background: #4CAF50; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">5</span>
+                                </div>
+                            </div>
+                            
+                            <div class="admin-table">
+                                <div class="table-header">Performance</div>
+                                <div class="table-row">
+                                    <span>Avg. Score</span>
+                                    <span style="color: #4CAF50; font-weight: 600;">7.2/10</span>
+                                </div>
+                                <div class="table-row">
+                                    <span>Completion Rate</span>
+                                    <span style="color: #4CAF50; font-weight: 600;">84%</span>
+                                </div>
+                                <div class="table-row">
+                                    <span>Active Sessions</span>
+                                    <span style="color: #FF6B35; font-weight: 600;">3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tablet Mockups -->
+        <div class="mockup-section">
+            <h2 style="text-align: center; margin-bottom: 30px; font-size: 28px; color: #333;">📱 Tablet View (768px - 1200px)</h2>
+            
+            <!-- Tablet Demographics -->
+            <div class="description">
+                <h3>📋 Tablet Demographics Survey</h3>
+                <ul>
+                    <li><strong>H5 heading</strong> (22px) - balanced for tablet screens</li>
+                    <li><strong>Optimized form spacing</strong> between mobile and desktop</li>
+                    <li><strong>Touch-friendly</strong> with 52px input heights</li>
+                    <li><strong>Portrait orientation</strong> optimized layout</li>
+                </ul>
+            </div>
+            <div class="tablet-frame">
+                <div class="device-screen">
+                    <div class="nav">
+                        <div class="nav-title">CredAhead</div>
+                        <div class="nav-items">
+                            <button class="nav-button">← Back</button>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div style="max-width: 500px; margin: 0 auto; padding-top: 40px;">
+                            <div class="h5-tablet text-orange text-center">Welcome to CredAhead!</div>
+                            <div class="body-tablet text-center" style="margin-bottom: 32px; color: #B0B0B0;">
+                                Help us personalize your learning experience with a few quick questions.
+                            </div>
+                            
+                            <div style="display: flex; justify-content: center; gap: 12px; margin: 24px 0;">
+                                <div style="width: 12px; height: 12px; border-radius: 50%; background: #FF6B35;"></div>
+                                <div style="width: 12px; height: 12px; border-radius: 50%; background: #FF6B35;"></div>
+                                <div style="width: 12px; height: 12px; border-radius: 50%; background: #666;"></div>
+                            </div>
+                            <div class="small-tablet text-center" style="margin-bottom: 40px;">Step 2 of 3</div>
+                            
+                            <div class="form-group-tablet">
+                                <select class="input-tablet" style="appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 4 5\"><path fill=\"%23666\" d=\"M2 0L0 2h4zm0 5L0 3h4z\"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; background-size: 12px;">
+                                    <option>Select Age Range</option>
+                                    <option>18-24</option>
+                                    <option>25-34</option>
+                                    <option>35-44</option>
+                                    <option>45-54</option>
+                                    <option>55+</option>
+                                </select>
+                            </div>
+                            <div class="form-group-tablet">
+                                <input class="input-tablet" placeholder="Location (City/Town)" type="text">
+                            </div>
+                            <div class="form-group-tablet">
+                                <select class="input-tablet" style="appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 4 5\"><path fill=\"%23666\" d=\"M2 0L0 2h4zm0 5L0 3h4z\"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; background-size: 12px;">
+                                    <option>Select Occupation</option>
+                                    <option>Student</option>
+                                    <option>Employed</option>
+                                    <option>Self-Employed</option>
+                                    <option>Retired</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            
+                            <button class="button-tablet" style="margin: 40px 0 24px 0; font-weight: 600;">CONTINUE TO ASSESSMENT</button>
+                            
+                            <div class="small-tablet text-center" style="color: #999;">
+                                Your information is secure and will only be used to improve our platform.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typography Scale Summary -->
+        <div class="description" style="margin-top: 60px;">
+            <h2>📐 Responsive Typography Scale Summary</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 20px;">
+                <div>
+                    <h4 style="color: #FF6B35; margin-bottom: 16px;">📱 Mobile (320px-600px)</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><strong>Page Titles:</strong> H5 (20px)</li>
+                        <li><strong>Section Headers:</strong> H6 (18px)</li>
+                        <li><strong>Body Text:</strong> 14px</li>
+                        <li><strong>Small Text:</strong> 12px</li>
+                        <li><strong>Buttons:</strong> 48px height, 14px text</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: #FF6B35; margin-bottom: 16px;">📱 Tablet (600px-900px)</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><strong>Page Titles:</strong> H5 (22px)</li>
+                        <li><strong>Section Headers:</strong> H6 (19px)</li>
+                        <li><strong>Body Text:</strong> 15px</li>
+                        <li><strong>Small Text:</strong> 13px</li>
+                        <li><strong>Buttons:</strong> 52px height, 15px text</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: #FF6B35; margin-bottom: 16px;">💻 Desktop (900px+)</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><strong>Page Titles:</strong> H4 (28px)</li>
+                        <li><strong>Section Headers:</strong> H5 (24px), H6 (20px)</li>
+                        <li><strong>Body Text:</strong> 16px</li>
+                        <li><strong>Small Text:</strong> 14px</li>
+                        <li><strong>Buttons:</strong> 56px height, 16px text</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="margin-top: 32px; padding: 24px; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #FF6B35;">
+                <h3 style="color: #FF6B35; margin-bottom: 16px;">🎯 Key Design Principles</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                    <div>
+                        <strong>Scalable Typography:</strong> Text sizes increase proportionally with screen size for optimal readability
+                    </div>
+                    <div>
+                        <strong>Touch Targets:</strong> Button heights scale from 48px (mobile) to 56px (desktop) for accessibility
+                    </div>
+                    <div>
+                        <strong>Layout Adaptation:</strong> Single column on mobile, multi-column on desktop for efficiency
+                    </div>
+                    <div>
+                        <strong>Professional Appearance:</strong> Consistent spacing and visual hierarchy across all screen sizes
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="breakpoint-info">
+        Current Screen: <span id="breakpoint">Desktop</span>
+    </div>
+
+    <script>
+        function updateBreakpoint() {
+            const width = window.innerWidth;
+            const breakpointEl = document.getElementById('breakpoint');
+            
+            if (width < 600) {
+                breakpointEl.textContent = 'Mobile';
+            } else if (width < 900) {
+                breakpointEl.textContent = 'Tablet';
+            } else {
+                breakpointEl.textContent = 'Desktop';
+            }
+        }
+        
+        updateBreakpoint();
+        window.addEventListener('resize', updateBreakpoint);
+    </script>
+</body>
+</html>

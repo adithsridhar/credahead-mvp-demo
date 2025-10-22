@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signup Debug Test</title>
+</head>
+<body>
+    <h2>Debug Supabase Signup</h2>
+    <div id="result"></div>
+    
+    <script type="module">
+        // Import Supabase
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+        
+        // Your Supabase config (replace with your actual values)
+        const supabaseUrl = 'https://ryziahtqskgqwtpqdpvb.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5emlhaHRxc2tncXd0cHFkcHZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3Mzk2NTgsImV4cCI6MjA3MzMxNTY1OH0.GvpKm0MRnKSNxiunLczkSiFz-2gzQb87RiFsCuqo7Zc';
+        
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        // Test signup
+        async function testSignup() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing signup...';
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: 'test' + Date.now() + '@example.com',
+                    password: 'testpass123',
+                    options: {
+                        data: {
+                            name: 'Test User'
+                        }
+                    }
+                });
+                
+                if (error) {
+                    resultDiv.innerHTML = `<pre style="color: red;">ERROR: ${JSON.stringify(error, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<pre style="color: green;">SUCCESS: ${JSON.stringify(data, null, 2)}</pre>`;
+                    
+                    if (data.user && !data.session) {
+                        resultDiv.innerHTML += '<br><strong>✅ User created, email confirmation required</strong>';
+                    } else if (data.session) {
+                        resultDiv.innerHTML += '<br><strong>⚠️ User automatically signed in (email confirmation disabled)</strong>';
+                    }
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<pre style="color: red;">EXCEPTION: ${err.message}</pre>`;
+            }
+        }
+        
+        // Auto-run test
+        testSignup();
+    </script>
+</body>
+</html>

@@ -36,7 +36,7 @@ export async function verifyAdminToken(token: string): Promise<AdminTokenPayload
     const { payload } = await jwtVerify(token, ADMIN_SECRET);
     
     if (payload.role === 'admin') {
-      return payload as AdminTokenPayload;
+      return payload as unknown as AdminTokenPayload;
     }
     
     return null;

@@ -281,7 +281,7 @@ export default function AdminDashboard() {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {stats?.allUsers.map((user) => (
+                        {stats?.allUsers.map((user: any) => (
                           <TableRow key={user.id}>
                             <TableCell>{user.email}</TableCell>
                             <TableCell>{user.name}</TableCell>
@@ -317,7 +317,7 @@ export default function AdminDashboard() {
                   </Typography>
                   {stats?.modules && stats.modules.length > 0 ? (
                     stats.modules.map((module: any) => {
-                      const count = stats?.lessons.filter(l => l.module_id === module.module_id).length || 0;
+                      const count = stats?.lessons.filter((l: any) => l.module_id === module.module_id).length || 0;
                       return (
                         <Box key={module.module_id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                           <Typography sx={{ fontSize: '0.875rem' }}>{module.name}</Typography>
@@ -356,7 +356,7 @@ export default function AdminDashboard() {
                     Lessons by Level
                   </Typography>
                   {Array.from({ length: 10 }, (_, i) => i + 1).map(level => {
-                    const count = stats?.lessons.filter(l => l.level === level).length || 0;
+                    const count = stats?.lessons.filter((l: any) => l.level === level).length || 0;
                     return (
                       <Box key={level} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                         <Typography>Level {level}</Typography>

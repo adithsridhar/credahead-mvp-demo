@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finny Mascot UI Mockups with Real Images - CredAhead</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(180deg, #3b3b3b 0%, #2a2a2a 100%);
+            color: #E0E0E0;
+            padding: 20px;
+        }
+
+        .mockup-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .mockup-title {
+            text-align: center;
+            color: #FF6B35;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .device-toggle {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .device-toggle button {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s ease;
+        }
+
+        .device-toggle button:hover {
+            background: #e55a2b;
+        }
+
+        .device-toggle button.active {
+            background: #4CAF50;
+        }
+
+        .screen-mockup {
+            background: #4a4a4a;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .screen-title {
+            color: #FF6B35;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* Desktop Layout */
+        .signin-screen, .quiz-screen {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+            min-height: 500px;
+        }
+
+        .signin-form {
+            flex: 1;
+            max-width: 400px;
+            background: #5a5a5a;
+            padding: 40px;
+            border-radius: 12px;
+        }
+
+        .signin-form h2 {
+            color: #FF6B35;
+            font-size: 1.75rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .form-field label {
+            display: block;
+            color: #E0E0E0;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .form-field input {
+            width: 100%;
+            height: 56px;
+            background: #4a4a4a;
+            border: 2px solid #666;
+            border-radius: 8px;
+            padding: 0 16px;
+            color: #E0E0E0;
+            font-size: 1rem;
+        }
+
+        .form-field input:focus {
+            border-color: #FF6B35;
+            outline: none;
+        }
+
+        .signin-button {
+            width: 100%;
+            height: 56px;
+            background: #FF6B35;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .signin-button:hover {
+            background: #e55a2b;
+        }
+
+        .mascot-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .mascot-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: #6a6a6a;
+        }
+
+        .mascot-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: transparent;
+        }
+
+        /* Speech Bubble Styles */
+        .speech-bubble {
+            position: relative;
+            background: #E8E8E8;
+            color: #333333;
+            padding: 20px 25px;
+            border-radius: 20px;
+            max-width: 280px;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.4;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 2px solid #CCCCCC;
+        }
+
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 30px;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid #E8E8E8;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: 28px;
+            width: 0;
+            height: 0;
+            border-left: 17px solid transparent;
+            border-right: 17px solid transparent;
+            border-top: 17px solid #CCCCCC;
+            z-index: -1;
+        }
+
+        /* Quiz Screen Styles */
+        .quiz-content {
+            flex: 2;
+            background: #5a5a5a;
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-header h3 {
+            color: #FF6B35;
+            font-size: 1.25rem;
+        }
+
+        .question-card {
+            background: #4a4a4a;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            color: #E0E0E0;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .answer-option {
+            background: #5a5a5a;
+            border: 2px solid #666;
+            border-radius: 8px;
+            padding: 15px 20px;
+            color: #E0E0E0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .answer-option:hover {
+            border-color: #FF6B35;
+            background: #6a6a6a;
+        }
+
+        .answer-option.correct {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .quiz-mascot-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding-top: 50px;
+        }
+
+        .quiz-mascot-image {
+            width: 180px;
+            height: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            background: #6a6a6a;
+        }
+
+        .quiz-mascot-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: transparent;
+        }
+
+        .feedback-popup {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 300px;
+        }
+
+        .feedback-correct {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .feedback-incorrect {
+            border-left: 4px solid #F44336;
+        }
+
+        /* Mobile Layout */
+        .mobile-layout .signin-screen,
+        .mobile-layout .quiz-screen {
+            flex-direction: column;
+            max-width: 400px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+
+        .mobile-layout .mascot-section,
+        .mobile-layout .quiz-mascot-section {
+            order: -1;
+            width: 100%;
+            padding: 20px 0;
+        }
+
+        .mobile-layout .mascot-image,
+        .mobile-layout .quiz-mascot-image {
+            width: 150px;
+            height: 150px;
+        }
+
+        .mobile-layout .speech-bubble {
+            max-width: 250px;
+            font-size: 14px;
+            padding: 15px 20px;
+        }
+
+        .mobile-layout .signin-form {
+            max-width: 100%;
+            padding: 30px;
+        }
+
+        .mobile-layout .quiz-content {
+            order: 1;
+        }
+
+        .mobile-layout .quiz-mascot-section {
+            position: relative;
+            padding-top: 20px;
+        }
+
+        .mobile-layout .feedback-popup {
+            position: relative;
+            top: 0;
+            right: 0;
+            margin-top: 20px;
+            max-width: 100%;
+        }
+
+        /* Messages Section */
+        .messages-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: #5a5a5a;
+            border-radius: 12px;
+        }
+
+        .messages-title {
+            color: #FF6B35;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .message-category {
+            margin-bottom: 30px;
+        }
+
+        .message-category h4 {
+            color: #4CAF50;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .message-category.incorrect h4 {
+            color: #F44336;
+        }
+
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message-item {
+            background: #E8E8E8;
+            color: #333333;
+            padding: 12px 18px;
+            border-radius: 15px;
+            font-size: 14px;
+            border: 1px solid #CCCCCC;
+        }
+
+        /* Hide/Show based on device */
+        .desktop-view { display: block; }
+        .mobile-view { display: none; }
+
+        .mobile-layout .desktop-view { display: none; }
+        .mobile-layout .mobile-view { display: block; }
+
+        .device-indicator {
+            text-align: center;
+            background: rgba(255, 107, 53, 0.1);
+            color: #FF6B35;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container" id="mockupContainer">
+        <h1 class="mockup-title">🐕 Finny Mascot UI Mockups - Real Images</h1>
+
+        <div class="device-toggle">
+            <button id="desktopBtn" class="active" onclick="showDesktop()">🖥️ Desktop View</button>
+            <button id="mobileBtn" onclick="showMobile()">📱 Mobile View</button>
+        </div>
+
+        <!-- Device Indicator -->
+        <div class="device-indicator" id="deviceIndicator">
+            🖥️ Desktop Layout - Mascot positioned on right side
+        </div>
+
+        <!-- Sign In Screen Mockup -->
+        <div class="screen-mockup">
+            <h2 class="screen-title">📱 Sign In Screen with Finny</h2>
+            <div class="signin-screen">
+                <div class="signin-form">
+                    <h2>Sign In</h2>
+                    <div class="form-field">
+                        <label>Email Address</label>
+                        <input type="email" placeholder="Enter your email" />
+                    </div>
+                    <div class="form-field">
+                        <label>Password</label>
+                        <input type="password" placeholder="Enter your password" />
+                    </div>
+                    <button class="signin-button">Sign In</button>
+                </div>
+                
+                <div class="mascot-section">
+                    <div class="mascot-image">
+                        <img src="http://192.168.1.10:3000/mascot/Cred-crouch.png" alt="Finny crouching" />
+                    </div>
+                    <div class="speech-bubble">
+                        Welcome to CredAhead. My name is Finny and I'm here to help! 🐕
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Screen Mockup -->
+        <div class="screen-mockup">
+            <h2 class="screen-title">🎯 Quiz Screen with Finny Encouragement</h2>
+            <div class="quiz-screen">
+                <div class="quiz-content">
+                    <div class="quiz-header">
+                        <h3>Level 3: BUDGETING BASICS</h3>
+                        <span>Q 5/10</span>
+                    </div>
+                    
+                    <div class="question-card">
+                        <div class="question-text">
+                            What is the 50/30/20 budget rule?
+                        </div>
+                        <div class="answer-options">
+                            <div class="answer-option correct">50% needs, 30% wants, 20% savings</div>
+                            <div class="answer-option">50% wants, 30% needs, 20% savings</div>
+                            <div class="answer-option">50% savings, 30% needs, 20% wants</div>
+                            <div class="answer-option">50% debt, 30% needs, 20% wants</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quiz-mascot-section">
+                    <div class="quiz-mascot-image">
+                        <img src="http://192.168.1.10:3000/mascot/Cred-sitting.png" alt="Finny sitting" />
+                    </div>
+                    <div class="speech-bubble">
+                        Well done!! You're crushing it! 🎉
+                    </div>
+                    
+                    <!-- Feedback Popup Example -->
+                    <div class="feedback-popup feedback-correct">
+                        <strong>✅ Correct!</strong><br/>
+                        The 50/30/20 rule allocates 50% to needs, 30% to wants, and 20% to savings and debt repayment.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Samples -->
+        <div class="screen-mockup">
+            <h2 class="screen-title">💬 Finny's Encouragement Messages</h2>
+            <div class="messages-section">
+                <div class="messages-title">Sample Messages from Finny</div>
+                
+                <div class="message-category">
+                    <h4>✅ Correct Answer Messages (Celebratory)</h4>
+                    <div class="message-list">
+                        <div class="message-item">Well done!! You're crushing it! 🎉</div>
+                        <div class="message-item">Fantastic work! Keep it up! ⭐</div>
+                        <div class="message-item">Amazing! You're getting smarter every day! 🧠</div>
+                        <div class="message-item">Perfect! You're on fire today! 🔥</div>
+                        <div class="message-item">Excellent! I'm so proud of you! 🏆</div>
+                    </div>
+                </div>
+                
+                <div class="message-category incorrect">
+                    <h4>❌ Incorrect Answer Messages (Encouraging)</h4>
+                    <div class="message-list">
+                        <div class="message-item">Don't give up! You've got this! 💪</div>
+                        <div class="message-item">Keep trying! Every mistake is a step forward! 🌟</div>
+                        <div class="message-item">No worries! Learning takes time and that's okay! 🤗</div>
+                        <div class="message-item">Stay positive! You're doing better than you think! 😊</div>
+                        <div class="message-item">Keep going! I believe in you completely! 🐕❤️</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Implementation Preview -->
+        <div class="screen-mockup">
+            <h2 class="screen-title">⚙️ Implementation Plan</h2>
+            <div style="padding: 20px; line-height: 1.8;">
+                <h3 style="color: #FF6B35; margin-bottom: 15px;">🎯 Key Features:</h3>
+                <ul style="margin-bottom: 25px; padding-left: 25px;">
+                    <li><strong>Real Finny Images:</strong> Actual Shiba PNG files displayed</li>
+                    <li><strong>Responsive Design:</strong> Adapts beautifully to all screen sizes</li>
+                    <li><strong>Interactive Messages:</strong> 10 different rotating messages</li>
+                    <li><strong>Comic Book Style:</strong> Professional speech bubbles</li>
+                </ul>
+                
+                <h3 style="color: #FF6B35; margin-bottom: 15px;">📋 Next Steps:</h3>
+                <ol style="margin-bottom: 25px; padding-left: 25px;">
+                    <li>Create reusable Mascot component with speech bubble</li>
+                    <li>Integrate Finny into Sign In page layout</li>
+                    <li>Enhance quiz feedback system with encouragement</li>
+                    <li>Implement message rotation system</li>
+                    <li>Test responsive behavior across devices</li>
+                </ol>
+                
+                <div style="background: rgba(76, 175, 80, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                    <strong>✅ Ready for Implementation:</strong> Mascot images confirmed, layouts designed, messages prepared!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDesktop() {
+            document.getElementById('mockupContainer').classList.remove('mobile-layout');
+            document.getElementById('desktopBtn').classList.add('active');
+            document.getElementById('mobileBtn').classList.remove('active');
+            document.getElementById('deviceIndicator').innerHTML = '🖥️ Desktop Layout - Mascot positioned on right side';
+        }
+
+        function showMobile() {
+            document.getElementById('mockupContainer').classList.add('mobile-layout');
+            document.getElementById('mobileBtn').classList.add('active');
+            document.getElementById('desktopBtn').classList.remove('active');
+            document.getElementById('deviceIndicator').innerHTML = '📱 Mobile Layout - Mascot positioned above content, centered';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Results - UI Wireframe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #3b3b3b;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px;
+            background-color: #4a4a4a;
+            border-radius: 12px;
+        }
+        
+        .title {
+            color: #FF6B35;
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        
+        .subtitle {
+            color: #4CAF50;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        /* Top Row - Literacy Level + Module Performance */
+        .top-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .literacy-box, .module-box {
+            background-color: #5a5a5a;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .literacy-box h3 {
+            color: #FF6B35;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+        
+        .literacy-score {
+            color: #4CAF50;
+            font-size: 4rem;
+            font-weight: bold;
+        }
+        
+        .module-box h3 {
+            color: #FF6B35;
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+        
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        
+        .module-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            background-color: #4a4a4a;
+            border-radius: 8px;
+        }
+        
+        .module-name {
+            font-size: 0.8rem;
+            color: #E0E0E0;
+            margin-bottom: 4px;
+        }
+        
+        .module-score {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .score-na { color: #9CA3AF; }
+        .score-low { color: #F44336; }
+        .score-medium { color: #FF9800; }
+        .score-high { color: #4CAF50; }
+        
+        /* Bottom Row - Statistics */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-box {
+            background-color: #5a5a5a;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            color: #E0E0E0;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            color: #4CAF50;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .continue-btn {
+            background-color: #FF6B35;
+            color: #FFFFFF;
+            padding: 16px 48px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .continue-btn:hover {
+            background-color: #e55a2b;
+        }
+        
+        .wireframe-note {
+            background-color: #2d2d2d;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #FF6B35;
+        }
+        
+        .wireframe-note h4 {
+            color: #FF6B35;
+            margin-bottom: 8px;
+        }
+        
+        .wireframe-note p {
+            color: #E0E0E0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="wireframe-note">
+        <h4>🎨 UI Wireframe - Assessment Results Layout</h4>
+        <p>This shows the proposed layout with sample data. The actual implementation will pull real assessment data.</p>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <h1 class="title">Assessment Results</h1>
+        <h2 class="subtitle">✅ Assessment Completed!</h2>
+        
+        <!-- Top Row: Literacy Level + Module Performance -->
+        <div class="top-row">
+            <!-- Literacy Level Box (moved to left) -->
+            <div class="literacy-box">
+                <h3>Your Literacy Level</h3>
+                <div class="literacy-score">6</div>
+            </div>
+            
+            <!-- Module Performance Breakdown Box (new) -->
+            <div class="module-box">
+                <h3>Performance by Module</h3>
+                <div class="module-grid">
+                    <div class="module-item">
+                        <div class="module-name">Budgeting</div>
+                        <div class="module-score score-high">83%</div>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-name">Saving</div>
+                        <div class="module-score score-medium">67%</div>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-name">Credit</div>
+                        <div class="module-score score-high">75%</div>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-name">Investing</div>
+                        <div class="module-score score-low">33%</div>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-name">Insurance</div>
+                        <div class="module-score score-na">NA</div>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-name">Taxes</div>
+                        <div class="module-score score-low">0%</div>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-name">Banking</div>
+                        <div class="module-score score-high">100%</div>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-name">Planning</div>
+                        <div class="module-score score-medium">50%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Row: Statistics -->
+        <div class="stats-row">
+            <!-- Box 1: Correct Questions (updated format) -->
+            <div class="stat-box">
+                <div class="stat-label">Questions Correct</div>
+                <div class="stat-value">16/24</div>
+            </div>
+            
+            <!-- Box 2: Accuracy % (moved from total questions) -->
+            <div class="stat-box">
+                <div class="stat-label">Accuracy</div>
+                <div class="stat-value">67%</div>
+            </div>
+            
+            <!-- Box 3: Time Taken (new) -->
+            <div class="stat-box">
+                <div class="stat-label">Time Taken</div>
+                <div class="stat-value">05:23</div>
+            </div>
+        </div>
+        
+        <!-- Continue Button -->
+        <button class="continue-btn">Continue to Learning Pathway</button>
+    </div>
+</body>
+</html>

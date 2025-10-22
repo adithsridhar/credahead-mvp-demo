@@ -54,7 +54,8 @@ export default function AssessmentResults({
 
   const handleContinue = () => {
     onContinue();
-    router.push('/pathway');
+    // Redirect to home page instead of pathway since pathway is disabled
+    router.push('/');
   };
 
   const getScoreColor = (accuracy: number | null): string => {
@@ -264,7 +265,7 @@ export default function AssessmentResults({
               fontWeight: 'bold'
             }}
           >
-            Continue to Learning Pathway
+            Continue
           </Button>
         </Box>
       </Card>

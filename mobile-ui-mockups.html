@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CredAhead Mobile UI Mockups</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .mockup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 667px;
+            background: #000;
+            border-radius: 25px;
+            padding: 8px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #3b3b3b;
+            border-radius: 18px;
+            overflow: hidden;
+            color: #E0E0E0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 24px;
+            background: #2d2d2d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .nav {
+            background: #2d2d2d;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-bottom: 1px solid #444;
+        }
+
+        .nav-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FF6B35;
+        }
+
+        .nav-level {
+            font-size: 14px;
+            color: #FF6B35;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 24px 20px;
+            overflow-y: auto;
+        }
+
+        /* Typography */
+        .h4 { font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; } /* OLD */
+        .h5 { font-size: 20px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; } /* NEW */
+        .h6 { font-size: 18px; font-weight: 600; line-height: 1.3; margin-bottom: 12px; }
+        .body { font-size: 14px; line-height: 1.5; margin-bottom: 12px; }
+        .small { font-size: 12px; line-height: 1.4; color: #B0B0B0; }
+
+        .text-center { text-align: center; }
+        .text-orange { color: #FF6B35; }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .input {
+            width: 100%;
+            height: 48px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #666;
+            border-radius: 8px;
+            padding: 0 16px;
+            font-size: 14px;
+            color: #E0E0E0;
+        }
+
+        .input:focus {
+            border-color: #FF6B35;
+            outline: none;
+        }
+
+        .button {
+            width: 100%;
+            height: 48px;
+            background: #FF6B35;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #e55a2b;
+        }
+
+        .link {
+            color: #FF6B35;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Progress */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #FF6B35;
+            border-radius: 3px;
+        }
+
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+        }
+
+        .dot.active {
+            background: #FF6B35;
+        }
+
+        /* Radio buttons */
+        .radio-group {
+            margin: 16px 0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .radio-option:last-child {
+            border-bottom: none;
+        }
+
+        .radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #666;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #4a4a4a;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #B0B0B0;
+        }
+
+        /* Table */
+        .table {
+            background: #4a4a4a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 16px;
+            border-bottom: 1px solid #666;
+            font-weight: 600;
+        }
+
+        .table-row {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Comparison */
+        .comparison {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .before-after h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .before h3 {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .after h3 {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .mockup-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .description {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mockup-title">CredAhead Mobile UI - Professional Design Mockups</h1>
+
+        <!-- Typography Comparison -->
+        <div class="comparison">
+            <h2>Typography Comparison</h2>
+            <div class="before-after">
+                <div class="before">
+                    <h3>❌ BEFORE (Current)</h3>
+                    <div style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">Sign In</div>
+                    <div style="font-size: 20px; margin-bottom: 8px;">Question text here?</div>
+                    <div style="font-size: 16px;">Body content and options</div>
+                    <p style="margin-top: 12px; font-size: 14px; color: #666;">
+                        <strong>Issues:</strong> Headings too large, poor hierarchy, overwhelming on mobile
+                    </p>
+                </div>
+                <div class="after">
+                    <h3>✅ AFTER (Proposed)</h3>
+                    <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Sign In</div>
+                    <div style="font-size: 18px; margin-bottom: 8px;">Question text here?</div>
+                    <div style="font-size: 14px;">Body content and options</div>
+                    <p style="margin-top: 12px; font-size: 14px; color: #666;">
+                        <strong>Benefits:</strong> Balanced hierarchy, professional appearance, optimized for mobile
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mockup-grid">
+            <!-- Sign In Page -->
+            <div>
+                <div class="description">
+                    <h3>🔐 Sign In Page</h3>
+                    <ul>
+                        <li><strong>H5 heading</strong> (20px) instead of H4 (28px)</li>
+                        <li><strong>Better spacing</strong> with 8px grid system</li>
+                        <li><strong>Touch-friendly</strong> 48px button height</li>
+                        <li><strong>Cleaner hierarchy</strong> for professional look</li>
+                    </ul>
+                </div>
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="status-bar">
+                            <span>9:41</span>
+                            <span>📶 📶 🔋</span>
+                        </div>
+                        <div class="nav">
+                            <div class="nav-title">CredAhead</div>
+                        </div>
+                        <div class="content">
+                            <div style="text-align: center; margin: 40px 0;">
+                                <div style="font-size: 40px; margin-bottom: 24px;">🎓</div>
+                                <div class="h5 text-orange text-center">Sign In</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <input class="input" placeholder="Email Address" type="email">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" placeholder="Password" type="password">
+                            </div>
+                            
+                            <button class="button" style="margin: 24px 0 16px 0;">SIGN IN</button>
+                            
+                            <div class="text-center">
+                                <a href="#" class="link">Don't have an account? Sign Up</a>
+                            </div>
+                            
+                            <div style="border-top: 1px solid #666; margin: 32px 0 16px 0; padding-top: 16px; text-align: center;">
+                                <a href="#" class="small link">Admin Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assessment Page -->
+            <div>
+                <div class="description">
+                    <h3>📊 Assessment Page</h3>
+                    <ul>
+                        <li><strong>H6 questions</strong> (18px) for better readability</li>
+                        <li><strong>Compact progress</strong> with essential info only</li>
+                        <li><strong>Clear radio options</strong> with proper spacing</li>
+                        <li><strong>Centered action button</strong> for focus</li>
+                    </ul>
+                </div>
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="status-bar">
+                            <span>9:41</span>
+                            <span>📶 📶 🔋</span>
+                        </div>
+                        <div class="nav">
+                            <div class="nav-title">CredAhead</div>
+                            <div class="nav-level">Level 3</div>
+                        </div>
+                        <div class="content">
+                            <div class="small" style="text-align: center; margin-bottom: 8px;">Question 5 of 24</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 33%;"></div>
+                            </div>
+                            
+                            <div class="h6" style="margin: 24px 0 20px 0;">
+                                What is the primary purpose of financial literacy education?
+                            </div>
+                            
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <div class="radio"></div>
+                                    <div class="body" style="margin: 0;">To learn investment strategies</div>
+                                </div>
+                                <div class="radio-option">
+                                    <div class="radio"></div>
+                                    <div class="body" style="margin: 0;">To understand basic money management</div>
+                                </div>
+                                <div class="radio-option">
+                                    <div class="radio"></div>
+                                    <div class="body" style="margin: 0;">To become a financial advisor</div>
+                                </div>
+                                <div class="radio-option">
+                                    <div class="radio"></div>
+                                    <div class="body" style="margin: 0;">To avoid paying taxes</div>
+                                </div>
+                            </div>
+                            
+                            <button class="button" style="margin: 32px 0 16px 0;">SUBMIT ANSWER</button>
+                            
+                            <div class="small text-center">Difficulty: 4.2</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demographics Survey -->
+            <div>
+                <div class="description">
+                    <h3>📋 Demographics Survey</h3>
+                    <ul>
+                        <li><strong>Visual progress dots</strong> instead of bar</li>
+                        <li><strong>Balanced title hierarchy</strong> with clear messaging</li>
+                        <li><strong>Consistent form styling</strong> with proper spacing</li>
+                        <li><strong>Clear call-to-action</strong> button</li>
+                    </ul>
+                </div>
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="status-bar">
+                            <span>9:41</span>
+                            <span>📶 📶 🔋</span>
+                        </div>
+                        <div class="nav">
+                            <div class="nav-title">CredAhead</div>
+                            <div style="font-size: 12px;">← Back</div>
+                        </div>
+                        <div class="content">
+                            <div class="h5 text-orange text-center">Welcome to CredAhead!</div>
+                            <div class="body text-center" style="margin-bottom: 24px;">
+                                Help us personalize your experience
+                            </div>
+                            
+                            <div class="progress-dots">
+                                <div class="dot active"></div>
+                                <div class="dot active"></div>
+                                <div class="dot"></div>
+                            </div>
+                            <div class="small text-center" style="margin-bottom: 32px;">Step 2 of 3</div>
+                            
+                            <div class="form-group">
+                                <select class="input">
+                                    <option>Age Range</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <input class="input" placeholder="Location (City/Town)">
+                            </div>
+                            <div class="form-group">
+                                <select class="input">
+                                    <option>Occupation</option>
+                                </select>
+                            </div>
+                            
+                            <button class="button" style="margin: 32px 0 16px 0;">CONTINUE TO ASSESSMENT</button>
+                            
+                            <div class="small text-center">Your information is secure</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div>
+                <div class="description">
+                    <h3>👑 Admin Dashboard</h3>
+                    <ul>
+                        <li><strong>2x2 stats grid</strong> instead of cramped 4x1</li>
+                        <li><strong>Simplified cards</strong> with clear icons and numbers</li>
+                        <li><strong>Mobile-optimized table</strong> with essential info</li>
+                        <li><strong>Scrollable tabs</strong> for navigation</li>
+                    </ul>
+                </div>
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="status-bar">
+                            <span>9:41</span>
+                            <span>📶 📶 🔋</span>
+                        </div>
+                        <div class="nav">
+                            <div class="nav-title">Admin Dashboard</div>
+                            <div style="font-size: 16px;">☰</div>
+                        </div>
+                        
+                        <div style="background: #2d2d2d; padding: 12px 20px; border-bottom: 1px solid #444;">
+                            <div style="display: flex; gap: 24px; font-size: 14px;">
+                                <span style="color: #FF6B35; border-bottom: 2px solid #FF6B35; padding-bottom: 8px;">Overview</span>
+                                <span style="color: #B0B0B0;">Import</span>
+                                <span style="color: #B0B0B0;">Content</span>
+                            </div>
+                        </div>
+                        
+                        <div class="content">
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-icon text-orange">📚</div>
+                                    <div class="stat-number text-orange">12</div>
+                                    <div class="stat-label">Lessons</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon" style="color: #4CAF50;">❓</div>
+                                    <div class="stat-number" style="color: #4CAF50;">245</div>
+                                    <div class="stat-label">Questions</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon" style="color: #2196F3;">👥</div>
+                                    <div class="stat-number" style="color: #2196F3;">6</div>
+                                    <div class="stat-label">Users</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon" style="color: #9C27B0;">📊</div>
+                                    <div class="stat-number" style="color: #9C27B0;">18</div>
+                                    <div class="stat-label">Sessions</div>
+                                </div>
+                            </div>
+                            
+                            <div class="table">
+                                <div class="table-header">Recent Users</div>
+                                <div class="table-row">
+                                    <span>john@email.com</span>
+                                    <span style="color: #FF6B35;">Lvl 3</span>
+                                </div>
+                                <div class="table-row">
+                                    <span>jane@email.com</span>
+                                    <span style="color: #FF6B35;">Lvl 1</span>
+                                </div>
+                                <div class="table-row">
+                                    <span>mike@email.com</span>
+                                    <span style="color: #FF6B35;">Lvl 5</span>
+                                </div>
+                            </div>
+                            
+                            <button class="button" style="margin-top: 16px; background: #4a4a4a; color: #E0E0E0;">VIEW ALL</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Improvements Summary -->
+        <div class="comparison">
+            <h2>🎯 Key Improvements Summary</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div>
+                    <h4 style="color: #FF6B35; margin-bottom: 12px;">📱 Typography</h4>
+                    <ul>
+                        <li>H5 (20px) for page titles</li>
+                        <li>H6 (18px) for questions</li>
+                        <li>14px body text for readability</li>
+                        <li>12px for metadata/captions</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: #FF6B35; margin-bottom: 12px;">📐 Spacing</h4>
+                    <ul>
+                        <li>8px base spacing unit</li>
+                        <li>Consistent margins (8, 16, 24, 32px)</li>
+                        <li>48px minimum touch targets</li>
+                        <li>Better content density</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: #FF6B35; margin-bottom: 12px;">🎨 Visual Hierarchy</h4>
+                    <ul>
+                        <li>Clear distinction between elements</li>
+                        <li>De-emphasized metadata</li>
+                        <li>Prominent call-to-action buttons</li>
+                        <li>Organized information flow</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: #FF6B35; margin-bottom: 12px;">📱 Mobile-First</h4>
+                    <ul>
+                        <li>Touch-optimized interactions</li>
+                        <li>Efficient screen usage</li>
+                        <li>Professional appearance</li>
+                        <li>Consistent with modern apps</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
