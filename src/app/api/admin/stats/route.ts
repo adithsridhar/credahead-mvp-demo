@@ -4,14 +4,21 @@ import { validateAdminAuth } from '@/lib/auth/adminAuth';
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🚀 Admin stats API called');
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('Has SERVICE_ROLE_KEY env var:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    console.log('supabaseAdmin exists:', !!supabaseAdmin);
+    
     // Validate admin authentication FIRST
     const isAuthorized = await validateAdminAuth(request);
     if (!isAuthorized) {
+      console.log('❌ Admin auth failed');
       return NextResponse.json(
         { error: 'Unauthorized: Admin access required' }, 
         { status: 401 }
       );
     }
+    console.log('✅ Admin auth passed');
 
     if (!supabaseAdmin) {
       console.error('❌ supabaseAdmin is null - service role key not loaded properly');
