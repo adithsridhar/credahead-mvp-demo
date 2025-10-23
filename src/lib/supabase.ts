@@ -1,7 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Try environment variables first, then fall back to runtime config
+const getConfig = () => {
+  if (typeof window !== 'undefined' && (window as any).ENV) {
+    return (window as any).ENV;
+  }
+  return {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  };
+};
+
+const config = getConfig();
+const supabaseUrl = config.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = config.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 // Enhanced environment validation with security checks
 function validateEnvironmentVariables() {
