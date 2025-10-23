@@ -14,8 +14,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (!supabaseAdmin) {
+      console.error('❌ supabaseAdmin is null - service role key not loaded properly');
+      console.error('Environment:', process.env.NODE_ENV);
+      console.error('Has SERVICE_ROLE_KEY env var:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
       return NextResponse.json({ error: 'Admin client not available' }, { status: 500 });
     }
+
+    console.log('✅ supabaseAdmin client available, proceeding with queries...');
 
     // Fetch all data using service role client (bypasses RLS)
     const [lessonsRes, questionsRes, usersRes, sessionsRes, allUsersRes, modulesRes, scoresRes] = await Promise.all([
@@ -28,27 +33,47 @@ export async function GET(request: NextRequest) {
       supabaseAdmin.from('scores').select('*', { count: 'exact' }).order('created_at', { ascending: false })
     ]);
 
-    // Check for errors in any of the queries
+    // Check for errors in any of the queries and log more details
     if (lessonsRes.error) {
       console.error('Lessons query error:', lessonsRes.error);
+    } else {
+      console.log('✅ Lessons query successful, count:', lessonsRes.count);
     }
+    
     if (questionsRes.error) {
       console.error('Questions query error:', questionsRes.error);
+    } else {
+      console.log('✅ Questions query successful, count:', questionsRes.count);
     }
+    
     if (usersRes.error) {
       console.error('Users query error:', usersRes.error);
+    } else {
+      console.log('✅ Users query successful, count:', usersRes.count);
     }
+    
     if (sessionsRes.error) {
       console.error('Quiz sessions query error:', sessionsRes.error);
+    } else {
+      console.log('✅ Sessions query successful, count:', sessionsRes.count);
     }
+    
     if (allUsersRes.error) {
       console.error('All users query error:', allUsersRes.error);
+    } else {
+      console.log('✅ All users query successful, length:', allUsersRes.data?.length);
     }
+    
     if (modulesRes.error) {
       console.error('Modules query error:', modulesRes.error);
+    } else {
+      console.log('✅ Modules query successful, length:', modulesRes.data?.length);
     }
+    
     if (scoresRes.error) {
       console.error('Scores query error:', scoresRes.error);
+    } else {
+      console.log('✅ Scores query successful, count:', scoresRes.count);
     }
 
     const stats = {
