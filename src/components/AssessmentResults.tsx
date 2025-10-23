@@ -171,7 +171,6 @@ export default function AssessmentResults({
                       }}>
                         <Typography variant="caption" sx={{ 
                           color: '#E0E0E0',
-                          display: 'block',
                           fontSize: '0.7rem',
                           lineHeight: 1.3,
                           flex: 1,
