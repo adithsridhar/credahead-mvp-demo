@@ -15,8 +15,8 @@ export interface FeatureFlags {
 }
 
 export const featureFlags: FeatureFlags = {
-  // Secondary features - disabled for primary release
-  learningPathway: false,
+  // Learning pathway enabled for dashboard access
+  learningPathway: true,
   lessonQuizzes: false, 
   pathwayVisualizations: false,
   advancedOptimizations: false,

@@ -34,7 +34,7 @@ export default function Navigation() {
           fontWeight: 600
         }}>
           <span 
-            onClick={() => isFeatureEnabled('learningPathway') ? requestNavigation('/pathway') : requestNavigation('/')}
+            onClick={() => user && appUser?.assessment_taken ? requestNavigation('/dashboard') : requestNavigation('/')}
             style={{ 
               textDecoration: 'none', 
               color: 'inherit', 
