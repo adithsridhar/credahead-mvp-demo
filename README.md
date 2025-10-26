@@ -1,24 +1,95 @@
 # CredAhead MVP - Financial Literacy Platform
 
-A comprehensive financial literacy platform built with Next.js 14, featuring adaptive assessments and personalized learning pathways.
+A comprehensive financial literacy platform built with Next.js 14, featuring adaptive assessments and personalized learning experiences. Currently deployed at [https://credahead-mvp-demo.netlify.app](https://credahead-mvp-demo.netlify.app).
+
+## Current Status (Production-Ready Features)
+
+✅ **Active Features**:
+- User Registration & Authentication
+- Initial Financial Literacy Assessment (24 questions)
+- Admin Dashboard with Analytics
+- Database Management & User Tracking
+- Responsive Design for Mobile/Desktop
+
+🚧 **Development Features** (Feature-flagged):
+- Learning Pathway System
+- Lesson Content & Quizzes
+- Advanced Progress Tracking
+
+## Expected User Experience Flow
+
+### 1. **Landing & Registration**
+```
+Landing Page → Sign Up → Email Confirmation → Auto Login
+```
+- Users land on the homepage with clear value proposition
+- Simple sign-up form with email/password
+- Email confirmation redirects to production app (not localhost)
+- Automatic login after confirmation
+
+### 2. **Initial Assessment**
+```
+Welcome → Pre-Assessment Info → 24-Question Assessment → Results
+```
+- **Pre-Assessment Screen**: Explains the assessment purpose and format
+- **Adaptive Assessment**: 24 questions starting at difficulty level 5
+  - Correct answers: Difficulty +0.5
+  - Incorrect answers: Difficulty -1.0
+  - Questions span 8 financial literacy modules
+- **Progress Tracking**: Real-time progress bar and difficulty indicator
+- **Results Screen**: 
+  - "Assessment Completed!" + "🎉 Congratulations!!"
+  - Large literacy level score (1-10)
+  - Statistics: Questions Correct, Accuracy, Percentile ranking
+  - Continue button to return to main menu
+
+### 3. **Main Menu & Navigation**
+```
+Assessment Results → Main Menu → Feature Access
+```
+- Clean navigation with user's literacy level displayed
+- Access to available features based on current build
+- Admin access for authorized users
+
+### 4. **Admin Experience** (For Administrators)
+```
+Admin Login → Dashboard → Analytics & Management
+```
+- Secure admin authentication
+- Real-time analytics showing:
+  - Total users, lessons, questions, scores
+  - User registration trends
+  - Assessment completion rates
+- User management interface
+- Data import/export capabilities
 
 ## Features
 
-- **Adaptive Assessment**: 24-question assessment that adjusts difficulty based on user performance
-- **Personalized Learning Pathway**: Level-based progression system with prerequisite requirements
-- **Lesson Quizzes**: 10-question quizzes with real-time feedback and explanations
-- **User Progress Tracking**: Comprehensive progress monitoring with caching
-- **Admin Dashboard**: CSV import functionality and analytics
-- **Session Management**: Automatic session timeout and progress preservation
+### Core Assessment System
+- **Adaptive Algorithm**: Dynamic difficulty adjustment based on performance
+- **Comprehensive Coverage**: 8 financial literacy modules
+- **Real-time Feedback**: Immediate scoring and percentile calculation
+- **Session Management**: 5-minute inactivity timeout with session recovery
+
+### User Management
+- **Secure Authentication**: Supabase Auth with email confirmation
+- **Profile Management**: Literacy level tracking and progress history
+- **Data Privacy**: Row Level Security (RLS) implementation
+
+### Admin Dashboard
+- **Analytics**: User engagement and assessment completion metrics
+- **User Overview**: Detailed user list with registration and assessment status
+- **Data Management**: Secure access to user data and system statistics
 
 ## Technology Stack
 
 - **Frontend**: Next.js 14 with App Router, TypeScript
-- **UI Framework**: Material-UI with custom theming
+- **UI Framework**: Material-UI with custom dark theme
 - **Database**: Supabase (PostgreSQL)
-- **State Management**: React Query for server state, Zustand for client state
 - **Authentication**: Supabase Auth
-- **Caching**: React Query + localStorage for user history
+- **State Management**: React Query + Zustand
+- **Deployment**: Netlify with environment variable fallbacks
+- **Analytics**: Built-in user tracking and percentile calculations
 
 ## Quick Start
 
@@ -30,8 +101,8 @@ A comprehensive financial literacy platform built with Next.js 14, featuring ada
 ### 1. Clone and Install
 
 ```bash
-git clone <repository-url>
-cd credahead-mvp
+git clone https://github.com/adithsridhar/credahead-mvp-demo.git
+cd credahead-mvp-demo
 npm install
 ```
 
@@ -72,102 +143,78 @@ Visit `http://localhost:3000` to see the application.
 ```
 src/
 ├── app/                    # Next.js 14 App Router
-│   ├── assessment/         # Assessment module
-│   ├── pathway/           # Learning pathway
-│   ├── lesson/[lessonId]/ # Dynamic lesson routes
-│   ├── auth/              # Authentication pages
-│   ├── admin/             # Admin dashboard
-│   └── api/               # API routes
+│   ├── assessment/         # Assessment module (ACTIVE)
+│   ├── pathway/           # Learning pathway (FEATURE-FLAGGED)
+│   ├── lesson/[lessonId]/ # Dynamic lesson routes (FEATURE-FLAGGED)
+│   ├── auth/              # Authentication pages (ACTIVE)
+│   ├── admin/             # Admin dashboard (ACTIVE)
+│   └── api/               # API routes (ACTIVE)
 ├── components/            # Reusable UI components
-├── contexts/              # React contexts (Auth)
+├── contexts/              # React contexts (Auth, Navigation)
 ├── hooks/                 # Custom React hooks
 ├── lib/                   # Utility libraries
 │   ├── cache/            # Caching logic
-│   └── utils/            # Helper functions
+│   ├── utils/            # Helper functions
+│   └── featureFlags.ts   # Production/Development feature separation
 └── types/                 # TypeScript type definitions
 ```
 
-## Key Components
+## Feature Flag System
 
-### Assessment System
-- **Location**: `src/app/assessment/`
-- **Features**: Pre-assessment screen, adaptive difficulty, 24 questions
-- **Algorithm**: Starts at difficulty 5, adjusts +0.5 for correct, -1.0 for incorrect
+The application uses a feature flag system to separate production-ready features from development features:
 
-### Learning Pathway
-- **Location**: `src/app/pathway/`
-- **Features**: Level-based progression, prerequisite checking, completion tracking
-- **Access Control**: Users must complete current level to access next level
+### Production Features (Always Active)
+- User Authentication & Registration
+- Initial Assessment System
+- Admin Dashboard & Analytics
+- User Profile Management
 
-### Lesson Quizzes
-- **Location**: `src/app/lesson/[lessonId]/`
-- **Features**: 10 questions per lesson, feedback popups, passing score of 8/10
-- **Feedback**: 10-second timer before allowing continuation
+### Development Features (Currently Disabled)
+- Learning Pathway System
+- Lesson Content & Quizzes
+- Advanced Progress Tracking
 
-### Admin Dashboard
-- **Location**: `src/app/admin/`
-- **Features**: CSV import, analytics, user management
-- **Import**: Supports both lessons and questions via CSV upload
+Toggle features in `src/lib/featureFlags.ts`.
 
-## Data Import
+## Assessment Algorithm
 
-### CSV Format
+### Difficulty Progression
+- **Starting Point**: Level 5 (medium difficulty)
+- **Correct Answer**: +0.5 difficulty
+- **Incorrect Answer**: -1.0 difficulty
+- **Range**: 1-10 difficulty scale
 
-**Lessons CSV Headers:**
-```
-lesson_id,title,description,level,estimated_duration,prerequisites
-```
-
-**Questions CSV Headers:**
-```
-question_id,lesson_id,text,options,correct_answer,difficulty,explanation
-```
-
-**Example Question Row:**
-```csv
-q_001,lesson_001,"What is budgeting?","[\"Planning expenses\",\"Spending money\",\"Saving only\",\"Investing\"]",0,3,"Budgeting is the process of planning how to spend your money."
-```
-
-### Import Process
-1. Navigate to `/admin`
-2. Select import type (lessons or questions)
-3. Choose CSV file
-4. Click upload
-
-## Caching Strategy
-
-### User History Cache
-- **Purpose**: Prevents duplicate questions in assessments/quizzes
-- **Storage**: Memory cache + localStorage persistence
-- **Duration**: 5 minutes for memory, persistent for localStorage
-- **Invalidation**: Automatic on new sessions
-
-### React Query Cache
-- **Server State**: 1 minute stale time, 5 minutes garbage collection
-- **User Progress**: Cached and invalidated on updates
-- **Lessons/Questions**: Long-term caching with background refetch
-
-## Authentication Flow
-
-1. **Sign Up**: Creates Supabase auth user + custom user record
-2. **Sign In**: Validates credentials and loads user profile
-3. **Assessment**: Required before accessing learning pathway
-4. **Progress Tracking**: Real-time updates to user literacy level
+### Scoring System
+- **Literacy Level**: Calculated based on final difficulty and accuracy
+- **Percentile Ranking**: Compared against 1000+ historical scores
+- **Performance Tracking**: Real-time progress updates
 
 ## Deployment
 
-### Vercel (Recommended)
+### Netlify (Current Production)
 
-1. Push to GitHub repository
-2. Import project in Vercel
-3. Add environment variables
-4. Deploy
+The app is deployed at: **https://credahead-mvp-demo.netlify.app**
 
-### Manual Build
+**Deployment Features**:
+- Automatic GitHub integration
+- Environment variable management
+- Runtime configuration fallbacks
+- Production build optimization
+
+### Local Build
 
 ```bash
 npm run build
-npm start
+npm run start
+```
+
+### Build Commands
+
+```bash
+npm run build        # Production build
+npm run dev         # Development server
+npm run lint        # ESLint checking
+npm run type-check  # TypeScript validation
 ```
 
 ## Environment Variables
@@ -180,35 +227,59 @@ npm start
 | `NEXTAUTH_SECRET` | Random string for session encryption | Yes |
 | `NEXTAUTH_URL` | Your application URL | Yes |
 
-## API Routes
-
-- `POST /api/admin/import` - CSV data import
-- Authentication handled by Supabase
-
 ## Database Schema
 
 ### Core Tables
 - `users` - User profiles and literacy levels
+- `modules` - Financial literacy modules (8 total)
 - `lessons` - Course content with level progression
-- `questions` - Quiz questions with difficulty ratings
-- `user_progress` - Lesson completion tracking
-- `user_question_history` - Question attempt history
-- `quiz_sessions` - Active quiz session management
+- `questions` - Assessment questions with difficulty ratings
+- `user_question_history` - Question attempt tracking
+- `quiz_sessions` - Assessment session management
+- `scores` - Historical score data for percentile calculations
 
 ### Key Features
 - Row Level Security (RLS) for data protection
-- Automatic user creation trigger
+- Automatic user creation triggers
 - Performance indexes on frequently queried columns
 - Referential integrity with foreign keys
+
+## API Routes
+
+- `GET /api/admin/stats` - Admin dashboard analytics
+- `POST /api/admin/login` - Admin authentication
+- `POST /api/scores/percentile` - Percentile calculation
+- `GET /api/debug` - Production debugging (temporary)
 
 ## Performance Optimizations
 
 - **Server Components**: Static content rendered server-side
 - **Client Components**: Interactive elements only
-- **Image Optimization**: Next.js automatic optimization
-- **Caching**: Multi-layer caching strategy
+- **Runtime Configuration**: Fallback system for environment variables
+- **Caching**: Multi-layer caching strategy with React Query
 - **Code Splitting**: Automatic route-based splitting
-- **Bundle Analysis**: Built-in webpack analyzer
+- **Image Optimization**: Next.js automatic optimization
+
+## Security Features
+
+- **Row Level Security**: Database-level access control
+- **Admin Authentication**: Secure admin route protection
+- **Session Management**: Automatic timeout and secure storage
+- **Environment Protection**: Safe handling of sensitive keys
+- **CORS Protection**: Proper API route security
+
+## Current Issues & Solutions
+
+### Resolved Issues
+- ✅ Module performance calculation (fixed database relationships)
+- ✅ Netlify environment variable loading (runtime config fallback)
+- ✅ Admin dashboard data access (service role key fallback)
+- ✅ Assessment UI consistency (uniform sizing)
+- ✅ Production build optimization (TypeScript fixes)
+
+### Known Considerations
+- Email confirmation redirects (configure Supabase URL settings for production)
+- Feature flag management (easy toggle for enabling development features)
 
 ## Contributing
 
@@ -231,19 +302,29 @@ This project is licensed under the MIT License.
 
 ## Roadmap
 
-### Phase 1 (Current)
-- ✅ Core assessment and learning system
-- ✅ Basic admin dashboard
-- ✅ CSV import functionality
+### Phase 1 (Current - MVP)
+- ✅ Core assessment system with adaptive difficulty
+- ✅ User authentication and profile management
+- ✅ Admin dashboard with analytics
+- ✅ Production deployment with Netlify
+- ✅ Mobile-responsive design
 
-### Phase 2 (Future)
-- Advanced analytics and reporting
-- Content management interface
-- Mobile app development
-- Integration with external learning resources
+### Phase 2 (Next - Learning Platform)
+- 🔄 Learning pathway system activation
+- 🔄 Lesson content and interactive quizzes
+- 🔄 Advanced progress tracking and analytics
+- 🔄 Content management interface
 
-### Phase 3 (Future)
-- AI-powered question generation
-- Social learning features
-- Gamification elements
-- Multi-language support
+### Phase 3 (Future - Advanced Features)
+- 📋 AI-powered question generation
+- 📋 Social learning features and community
+- 📋 Gamification elements and achievements
+- 📋 Multi-language support
+- 📋 Mobile app development
+- 📋 Integration with external financial tools
+
+---
+
+**Live Demo**: [https://credahead-mvp-demo.netlify.app](https://credahead-mvp-demo.netlify.app)
+
+**Admin Demo**: Available upon request for authorized users
