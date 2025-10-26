@@ -50,7 +50,7 @@ export default function HomePage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-gray-300">
-            {loading ? 'Loading...' : !user ? 'Redirecting to sign in...' : 'Loading user data...'}
+            {loading ? 'Thinking...' : !user ? 'Redirecting to sign in...' : 'Loading user data...'}
           </p>
         </div>
       </main>
