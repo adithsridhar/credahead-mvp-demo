@@ -15,7 +15,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  // Removed success state since we redirect immediately
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,12 +41,11 @@ export default function SignUpPage() {
       
       await signUp(email, password, name);
       
-      // Show verification message - no auto redirects or signin attempts
-      setSuccess('Verification email sent. Please check your inbox and validate using the link to proceed.');
+      // Account created successfully - redirect to home page which will handle the flow
+      router.push('/');
       
     } catch (error: any) {
       setError(error.message || 'Failed to create account');
-    } finally {
       setLoading(false);
     }
   };
@@ -88,11 +87,7 @@ export default function SignUpPage() {
           </Alert>
         )}
 
-        {success && (
-          <Alert severity="success" sx={{ mb: 3 }}>
-            {success}
-          </Alert>
-        )}
+        {/* Removed success message since we redirect immediately */}
 
         <Box component="form" onSubmit={handleSubmit} sx={{ 
           mt: { xs: 1, md: 2 }, 
@@ -226,7 +221,7 @@ export default function SignUpPage() {
             type="submit"
             fullWidth
             variant="contained"
-            disabled={loading || !!success}
+            disabled={loading}
             sx={{ 
               mt: { xs: 2, sm: 3, md: 4 }, 
               mb: { xs: 2, md: 3 },

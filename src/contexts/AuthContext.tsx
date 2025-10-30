@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      console.log('Creating user account with email verification...');
+      console.log('Creating user account with immediate sign-in...');
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -141,15 +141,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
 
-      console.log('Account created successfully. Email verification required.');
+      console.log('Account created successfully.');
       console.log('Signup data:', data);
       console.log('User created:', data.user ? 'Yes' : 'No');
-      console.log('Session created:', data.session ? 'Yes (auto-signin enabled)' : 'No (email confirmation required)');
-      console.log('User email confirmed:', data.user?.email_confirmed_at ? 'Yes' : 'No');
+      console.log('Session created:', data.session ? 'Yes (auto-signin enabled)' : 'No');
       
-      // Account created successfully - user will need to verify email
-      // The database trigger will create the user record with the name from metadata
-      // No need to handle database operations here since user isn't signed in yet
+      // With email confirmation disabled, user should be automatically signed in
+      // The auth state change listener will handle fetching the app user data
       
     } catch (error: any) {
       console.error('Sign up error:', error);
