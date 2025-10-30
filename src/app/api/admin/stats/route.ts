@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { validateAdminAuth } from '@/lib/auth/adminAuth';
+import { getCacheHeaders } from '@/lib/version';
 
 export async function GET(request: NextRequest) {
   try {
@@ -104,7 +105,15 @@ export async function GET(request: NextRequest) {
       usersCount: stats.allUsers.length
     });
 
-    return NextResponse.json(stats);
+    const response = NextResponse.json(stats);
+    
+    // Add cache headers for API responses
+    const cacheHeaders = getCacheHeaders('api');
+    Object.entries(cacheHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
+    
+    return response;
   } catch (error) {
     console.error('Admin stats API error:', error);
     return NextResponse.json(

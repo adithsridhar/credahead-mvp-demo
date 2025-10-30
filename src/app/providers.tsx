@@ -5,7 +5,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { NavigationGuardProvider } from '@/contexts/NavigationGuardContext';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAppVersion } from '@/hooks/useVersionCheck';
 
 // Material-UI theme configuration
 const theme = createTheme({
@@ -53,6 +54,8 @@ const theme = createTheme({
 });
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const { version } = useAppVersion();
+  
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -65,6 +68,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       })
   );
+
+  // Log app version on startup
+  useEffect(() => {
+    console.log(`🚀 CredAhead App started - Version: ${version}`);
+  }, [version]);
 
   return (
     <QueryClientProvider client={queryClient}>

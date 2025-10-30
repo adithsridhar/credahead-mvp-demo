@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getCacheHeaders } from '@/lib/version';
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,10 +57,18 @@ export async function POST(request: NextRequest) {
     // Round to nearest integer
     const roundedPercentile = Math.round(percentile);
     
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       percentile: roundedPercentile,
       totalScores: totalCount // For debugging/verification
     });
+    
+    // Add cache headers for API responses
+    const cacheHeaders = getCacheHeaders('api');
+    Object.entries(cacheHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
+    
+    return response;
     
   } catch (error) {
     console.error('Error in percentile calculation API:', error);
