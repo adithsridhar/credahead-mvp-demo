@@ -29,8 +29,8 @@ const featureCards = [
     title: 'Learning Pathway',
     icon: <TrendingUp sx={{ fontSize: 48, color: '#FF6B35' }} />,
     description: 'Boost your literacy score with quizzes',
-    route: '/pathway',
-    comingSoon: false
+    route: '/pathway-coming-soon',
+    comingSoon: true
   },
   {
     title: 'Socratic Corner',
